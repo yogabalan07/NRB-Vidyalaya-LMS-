@@ -1,0 +1,35 @@
+import { z } from "zod";
+
+export const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export const registerSchema = z.object({
+  fullName: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+export const courseSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  difficulty: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+});
+
+export const quizSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  timeLimitMinutes: z.number().positive().optional(),
+  passPercentage: z.number().min(0).max(100).default(40),
+  maxAttempts: z.number().positive().default(1),
+});
+
+export type LoginInput = z.infer<typeof loginSchema>;
+export type RegisterInput = z.infer<typeof registerSchema>;
+export type CourseInput = z.infer<typeof courseSchema>;
+export type QuizInput = z.infer<typeof quizSchema>;
