@@ -1,3 +1,0 @@
-export function AdminQuestionBankPage() {
-  return <div><h1 className="text-2xl font-bold">Question Bank</h1><p className="mt-2 text-muted-foreground">Placeholder — Question bank management.</p></div>;
-}

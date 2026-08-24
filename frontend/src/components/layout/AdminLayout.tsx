@@ -12,15 +12,14 @@ import {
   Bot,
   Bell,
   Settings,
-  Shield,
   BookMarked,
   Library,
   Award,
   MessageSquare,
   ListChecks,
-  User,
   LogOut,
   ChevronLeft,
+  FileBarChart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -30,12 +29,12 @@ import { cn } from "@/lib/utils";
 
 const adminNav = [
   { label: "Dashboard", to: ROUTES.ADMIN_DASHBOARD, icon: LayoutDashboard },
-  { label: "Students", to: ROUTES.ADMIN_STUDENTS, icon: Users },
-  { label: "Teachers", to: ROUTES.ADMIN_TEACHERS, icon: GraduationCap },
+  { label: "Users", to: ROUTES.ADMIN_USERS, icon: Users },
+  { label: "Students", to: ROUTES.ADMIN_STUDENTS, icon: GraduationCap },
+  { label: "Teachers", to: ROUTES.ADMIN_TEACHERS, icon: Users },
   { label: "Courses", to: ROUTES.ADMIN_COURSES, icon: BookMarked },
-  { label: "Modules", to: ROUTES.ADMIN_MODULES, icon: Library },
   { label: "Lessons", to: ROUTES.ADMIN_LESSONS, icon: BookOpen },
-  { label: "Materials", to: ROUTES.ADMIN_MATERIALS, icon: FileText },
+  { label: "Materials", to: ROUTES.ADMIN_MATERIALS, icon: Library },
   { label: "Assignments", to: ROUTES.ADMIN_ASSIGNMENTS, icon: ClipboardCheck },
   { label: "Quizzes", to: ROUTES.ADMIN_QUIZZES, icon: ListChecks },
   { label: "Question Bank", to: ROUTES.ADMIN_QUESTION_BANK, icon: Banknote },
@@ -44,11 +43,12 @@ const adminNav = [
   { label: "Results", to: ROUTES.ADMIN_RESULTS, icon: BarChart3 },
   { label: "Certificates", to: ROUTES.ADMIN_CERTIFICATES, icon: Award },
   { label: "Blog", to: ROUTES.ADMIN_BLOG, icon: FileText },
+  { label: "Announcements", to: ROUTES.ADMIN_ANNOUNCEMENTS, icon: MessageSquare },
   { label: "Notifications", to: ROUTES.ADMIN_NOTIFICATIONS, icon: Bell },
   { label: "Payments", to: ROUTES.ADMIN_PAYMENTS, icon: Banknote },
-  { label: "Reports", to: ROUTES.ADMIN_REPORTS, icon: BarChart3 },
+  { label: "Reports", to: ROUTES.ADMIN_REPORTS, icon: FileBarChart },
+  { label: "Analytics", to: ROUTES.ADMIN_ANALYTICS, icon: BarChart3 },
   { label: "Settings", to: ROUTES.ADMIN_SETTINGS, icon: Settings },
-  { label: "Audit Logs", to: ROUTES.ADMIN_AUDIT_LOGS, icon: Shield },
 ];
 
 const teacherNav = [
@@ -61,13 +61,19 @@ const teacherNav = [
   { label: "Quizzes", to: ROUTES.TEACHER_QUIZZES, icon: ListChecks },
   { label: "Question Bank", to: ROUTES.TEACHER_QUESTION_BANK, icon: Banknote },
   { label: "Attendance", to: ROUTES.TEACHER_ATTENDANCE, icon: CalendarCheck },
-  { label: "Progress", to: ROUTES.TEACHER_PROGRESS, icon: BarChart3 },
+  { label: "Performance", to: ROUTES.TEACHER_PROGRESS, icon: BarChart3 },
   { label: "Announcements", to: ROUTES.TEACHER_ANNOUNCEMENTS, icon: MessageSquare },
 ];
 
+interface NavItem {
+  label: string;
+  to: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
 interface PortalSidebarProps {
   title: string;
-  navItems: typeof adminNav;
+  navItems: NavItem[];
 }
 
 function PortalSidebar({ title, navItems }: PortalSidebarProps) {

@@ -3,7 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import { config } from "./config/environment.js";
 
-const app = express();
+const app: express.Express = express();
 
 app.use(helmet());
 app.use(cors({ origin: config.nodeEnv === "development" ? "http://localhost:3000" : "" }));
