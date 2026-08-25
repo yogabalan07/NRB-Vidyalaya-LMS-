@@ -1,17 +1,12 @@
-// Placeholder hooks - will be implemented with real data fetching
+import { useAuth as useAuthContext } from "@/context/AuthContext";
 
 export function useAuth() {
-  return {
-    user: null,
-    loading: false,
-    login: async () => {},
-    register: async () => {},
-    logout: async () => {},
-  };
+  return useAuthContext();
 }
 
 export function useUser() {
-  return { user: null, loading: false };
+  const { user, profile, loading } = useAuthContext();
+  return { user, profile, loading };
 }
 
 export function useCourses() {

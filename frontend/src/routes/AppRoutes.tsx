@@ -3,6 +3,11 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { StudentLayout } from "@/components/layout/StudentLayout";
 import { TeacherLayout } from "@/components/layout/AdminLayout";
 import { AdminLayout } from "@/components/layout/AdminLayout";
+import {
+  StudentRoute,
+  TeacherRoute,
+  AdminRoute,
+} from "@/components/auth/ProtectedRoute";
 
 // Public Pages
 import { HomePage } from "@/pages/public/Home";
@@ -89,61 +94,67 @@ export function AppRoutes() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Route>
 
-      {/* Student portal */}
-      <Route path="/student" element={<StudentLayout />}>
-        <Route path="dashboard" element={<StudentDashboardPage />} />
-        <Route path="courses" element={<StudentCoursesPage />} />
-        <Route path="lessons" element={<StudentLessonsPage />} />
-        <Route path="materials" element={<StudentMaterialsPage />} />
-        <Route path="assignments" element={<StudentAssignmentsPage />} />
-        <Route path="quizzes" element={<StudentQuizzesPage />} />
-        <Route path="results" element={<StudentResultsPage />} />
-        <Route path="attendance" element={<StudentAttendancePage />} />
-        <Route path="certificates" element={<StudentCertificatesPage />} />
-        <Route path="ai-tutor" element={<StudentAITutorPage />} />
-        <Route path="notifications" element={<StudentNotificationsPage />} />
-        <Route path="profile" element={<StudentProfilePage />} />
+      {/* Student portal - protected */}
+      <Route element={<StudentRoute />}>
+        <Route path="/student" element={<StudentLayout />}>
+          <Route path="dashboard" element={<StudentDashboardPage />} />
+          <Route path="courses" element={<StudentCoursesPage />} />
+          <Route path="lessons" element={<StudentLessonsPage />} />
+          <Route path="materials" element={<StudentMaterialsPage />} />
+          <Route path="assignments" element={<StudentAssignmentsPage />} />
+          <Route path="quizzes" element={<StudentQuizzesPage />} />
+          <Route path="results" element={<StudentResultsPage />} />
+          <Route path="attendance" element={<StudentAttendancePage />} />
+          <Route path="certificates" element={<StudentCertificatesPage />} />
+          <Route path="ai-tutor" element={<StudentAITutorPage />} />
+          <Route path="notifications" element={<StudentNotificationsPage />} />
+          <Route path="profile" element={<StudentProfilePage />} />
+        </Route>
       </Route>
 
-      {/* Teacher portal */}
-      <Route path="/teacher" element={<TeacherLayout />}>
-        <Route path="dashboard" element={<TeacherDashboardPage />} />
-        <Route path="students" element={<TeacherStudentsPage />} />
-        <Route path="courses" element={<TeacherCoursesPage />} />
-        <Route path="lessons" element={<TeacherLessonsPage />} />
-        <Route path="assignments" element={<TeacherAssignmentsPage />} />
-        <Route path="submissions" element={<TeacherSubmissionsPage />} />
-        <Route path="quizzes" element={<TeacherQuizzesPage />} />
-        <Route path="question-bank" element={<TeacherQuestionBankPage />} />
-        <Route path="attendance" element={<TeacherAttendancePage />} />
-        <Route path="performance" element={<TeacherPerformancePage />} />
-        <Route path="announcements" element={<TeacherAnnouncementsPage />} />
-        <Route path="profile" element={<TeacherProfilePage />} />
+      {/* Teacher portal - protected */}
+      <Route element={<TeacherRoute />}>
+        <Route path="/teacher" element={<TeacherLayout />}>
+          <Route path="dashboard" element={<TeacherDashboardPage />} />
+          <Route path="students" element={<TeacherStudentsPage />} />
+          <Route path="courses" element={<TeacherCoursesPage />} />
+          <Route path="lessons" element={<TeacherLessonsPage />} />
+          <Route path="assignments" element={<TeacherAssignmentsPage />} />
+          <Route path="submissions" element={<TeacherSubmissionsPage />} />
+          <Route path="quizzes" element={<TeacherQuizzesPage />} />
+          <Route path="question-bank" element={<TeacherQuestionBankPage />} />
+          <Route path="attendance" element={<TeacherAttendancePage />} />
+          <Route path="performance" element={<TeacherPerformancePage />} />
+          <Route path="announcements" element={<TeacherAnnouncementsPage />} />
+          <Route path="profile" element={<TeacherProfilePage />} />
+        </Route>
       </Route>
 
-      {/* Admin portal */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route path="dashboard" element={<AdminDashboardPage />} />
-        <Route path="users" element={<AdminUsersPage />} />
-        <Route path="students" element={<AdminStudentsPage />} />
-        <Route path="teachers" element={<AdminTeachersPage />} />
-        <Route path="courses" element={<AdminCoursesPage />} />
-        <Route path="lessons" element={<AdminLessonsPage />} />
-        <Route path="materials" element={<AdminMaterialsPage />} />
-        <Route path="assignments" element={<AdminAssignmentsPage />} />
-        <Route path="quizzes" element={<AdminQuizzesPage />} />
-        <Route path="question-bank" element={<AdminQuestionBankPage />} />
-        <Route path="ai-generator" element={<AdminAIGeneratorPage />} />
-        <Route path="attendance" element={<AdminAttendancePage />} />
-        <Route path="results" element={<AdminResultsPage />} />
-        <Route path="certificates" element={<AdminCertificatesPage />} />
-        <Route path="blog" element={<AdminBlogPage />} />
-        <Route path="announcements" element={<AdminAnnouncementsPage />} />
-        <Route path="notifications" element={<AdminNotificationsPage />} />
-        <Route path="payments" element={<AdminPaymentsPage />} />
-        <Route path="reports" element={<AdminReportsPage />} />
-        <Route path="analytics" element={<AdminAnalyticsPage />} />
-        <Route path="settings" element={<AdminSettingsPage />} />
+      {/* Admin portal - protected */}
+      <Route element={<AdminRoute />}>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="dashboard" element={<AdminDashboardPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="students" element={<AdminStudentsPage />} />
+          <Route path="teachers" element={<AdminTeachersPage />} />
+          <Route path="courses" element={<AdminCoursesPage />} />
+          <Route path="lessons" element={<AdminLessonsPage />} />
+          <Route path="materials" element={<AdminMaterialsPage />} />
+          <Route path="assignments" element={<AdminAssignmentsPage />} />
+          <Route path="quizzes" element={<AdminQuizzesPage />} />
+          <Route path="question-bank" element={<AdminQuestionBankPage />} />
+          <Route path="ai-generator" element={<AdminAIGeneratorPage />} />
+          <Route path="attendance" element={<AdminAttendancePage />} />
+          <Route path="results" element={<AdminResultsPage />} />
+          <Route path="certificates" element={<AdminCertificatesPage />} />
+          <Route path="blog" element={<AdminBlogPage />} />
+          <Route path="announcements" element={<AdminAnnouncementsPage />} />
+          <Route path="notifications" element={<AdminNotificationsPage />} />
+          <Route path="payments" element={<AdminPaymentsPage />} />
+          <Route path="reports" element={<AdminReportsPage />} />
+          <Route path="analytics" element={<AdminAnalyticsPage />} />
+          <Route path="settings" element={<AdminSettingsPage />} />
+        </Route>
       </Route>
 
       {/* 404 */}

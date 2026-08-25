@@ -1,9 +1,12 @@
-import { Link } from "react-router-dom";
-import { BookOpen, Menu, X } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { BookOpen, Menu, X, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import { getInitials } from "@/lib/utils";
 
 const navLinks = [
   { label: "Home", to: ROUTES.HOME },
@@ -11,11 +14,23 @@ const navLinks = [
   { label: "Courses", to: ROUTES.COURSES },
   { label: "Blog", to: ROUTES.BLOG },
   { label: "Contact", to: ROUTES.CONTACT },
-  { label: "FAQ", to: ROUTES.FAQ },
 ];
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, isAuthenticated, signOut, getRedirectPath } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate(ROUTES.LOGIN, { replace: true });
+    setMobileOpen(false);
+  };
+
+  const handleDashboard = () => {
+    navigate(getRedirectPath());
+    setMobileOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -45,12 +60,33 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex items-center gap-2">
-          <Button variant="ghost" asChild>
-            <Link to={ROUTES.LOGIN}>Login</Link>
-          </Button>
-          <Button asChild>
-            <Link to={ROUTES.REGISTER}>Get Started</Link>
-          </Button>
+          {isAuthenticated ? (
+            <>
+              <Button variant="ghost" onClick={handleDashboard}>
+                <User className="mr-2 h-4 w-4" />
+                Dashboard
+              </Button>
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    {user?.fullName ? getInitials(user.fullName) : "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Sign out">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" asChild>
+                <Link to={ROUTES.LOGIN}>Login</Link>
+              </Button>
+              <Button asChild>
+                <Link to={ROUTES.REGISTER}>Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <Button
@@ -80,16 +116,31 @@ export function Header() {
               </Link>
             ))}
             <div className="mt-4 flex flex-col gap-2 border-t pt-4">
-              <Button variant="outline" asChild>
-                <Link to={ROUTES.LOGIN} onClick={() => setMobileOpen(false)}>
-                  Login
-                </Link>
-              </Button>
-              <Button asChild>
-                <Link to={ROUTES.REGISTER} onClick={() => setMobileOpen(false)}>
-                  Get Started
-                </Link>
-              </Button>
+              {isAuthenticated ? (
+                <>
+                  <Button variant="outline" onClick={handleDashboard}>
+                    <User className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </Button>
+                  <Button variant="destructive" onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" asChild>
+                    <Link to={ROUTES.LOGIN} onClick={() => setMobileOpen(false)}>
+                      Login
+                    </Link>
+                  </Button>
+                  <Button asChild>
+                    <Link to={ROUTES.REGISTER} onClick={() => setMobileOpen(false)}>
+                      Get Started
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </div>

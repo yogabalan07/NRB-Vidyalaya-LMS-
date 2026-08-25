@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   BookOpen,
   LayoutDashboard,
@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 const studentNav = [
   { label: "Dashboard", to: ROUTES.STUDENT_DASHBOARD, icon: LayoutDashboard },
@@ -43,6 +44,13 @@ interface PortalSidebarProps {
 
 function PortalSidebar({ title, navItems }: PortalSidebarProps) {
   const location = useLocation();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate(ROUTES.LOGIN, { replace: true });
+  };
 
   return (
     <aside className="hidden lg:flex w-64 flex-col border-r bg-card">
@@ -83,17 +91,32 @@ function PortalSidebar({ title, navItems }: PortalSidebarProps) {
         <div className="flex items-center gap-3 px-3 py-2">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-primary/10 text-primary text-xs">
-              S
+              {user?.fullName
+                ? user.fullName
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()
+                    .slice(0, 2)
+                : "S"}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 truncate">
-            <p className="text-sm font-medium">Student</p>
-            <p className="text-xs text-muted-foreground">student@nrb.com</p>
+            <p className="text-sm font-medium">
+              {user?.fullName || "Student"}
+            </p>
+            <p className="text-xs text-muted-foreground truncate">
+              {user?.email || "student@nrb.com"}
+            </p>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-            <Link to={ROUTES.LOGIN}>
-              <LogOut className="h-4 w-4" />
-            </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={handleLogout}
+            aria-label="Sign out"
+          >
+            <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </div>

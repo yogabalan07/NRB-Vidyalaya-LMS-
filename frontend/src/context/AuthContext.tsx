@@ -82,25 +82,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
 
-  const loadProfile = useCallback(async (userId: string) => {
-    try {
-      const profileData = await authService.getProfile(userId);
-      if (!mountedRef.current) return;
-      setProfile(profileData);
-      return profileData;
-    } catch {
-      if (!mountedRef.current) return null;
-      setProfile(null);
-      return null;
-    }
-  }, []);
+  const loadProfile = useCallback(
+    async (userId: string): Promise<Profile | null> => {
+      try {
+        const profileData = await authService.getProfile(userId);
+        if (mountedRef.current) {
+          setProfile(profileData);
+        }
+        return profileData;
+      } catch {
+        if (mountedRef.current) {
+          setProfile(null);
+        }
+        return null;
+      }
+    },
+    []
+  );
 
   const handleAuthChange = useCallback(
     async (event: string, session: unknown) => {
       if (!mountedRef.current) return;
 
       const authSession = session as {
-        user?: { id: string; email?: string; user_metadata?: Record<string, unknown> };
+        user?: {
+          id: string;
+          email?: string;
+          user_metadata?: Record<string, unknown>;
+        };
       } | null;
 
       if (event === "SIGNED_OUT" || !authSession?.user) {
