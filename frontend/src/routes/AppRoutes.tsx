@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { StudentLayout } from "@/components/layout/StudentLayout";
@@ -8,8 +9,9 @@ import {
   TeacherRoute,
   AdminRoute,
 } from "@/components/auth/ProtectedRoute";
+import { PageLoader } from "@/components/common/Loader";
 
-// Public Pages
+// Public Pages (loaded eagerly - needed on initial visit)
 import { HomePage } from "@/pages/public/Home";
 import { AboutPage } from "@/pages/public/About";
 import { CoursesPage } from "@/pages/public/Courses";
@@ -20,71 +22,78 @@ import { ContactPage } from "@/pages/public/Contact";
 import { AnnouncementsPage } from "@/pages/public/Announcements";
 import { CertificateVerifyPage } from "@/pages/public/CertificateVerify";
 import { NotFoundPage } from "@/pages/public/NotFound";
-// Legacy generic auth pages
-import { LoginPage } from "@/pages/auth/Login";
-import { RegisterPage } from "@/pages/auth/Register";
-import { ForgotPasswordPage } from "@/pages/auth/ForgotPassword";
-import { ResetPasswordPage } from "@/pages/auth/ResetPassword";
 
-// Separate portal auth pages
-import { StudentLoginPage } from "@/pages/auth/StudentLogin";
-import { StudentRegisterPage } from "@/pages/auth/StudentRegister";
-import { StudentForgotPasswordPage } from "@/pages/auth/StudentForgotPassword";
-import { TeacherLoginPage } from "@/pages/auth/TeacherLogin";
-import { TeacherForgotPasswordPage } from "@/pages/auth/TeacherForgotPassword";
-import { AdminLoginPage } from "@/pages/auth/AdminLogin";
-import { AdminForgotPasswordPage } from "@/pages/auth/AdminForgotPassword";
+// Auth pages (lazy - only loaded when needed)
+const LoginPage = lazy(() => import("@/pages/auth/Login").then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import("@/pages/auth/Register").then(m => ({ default: m.RegisterPage })));
+const ForgotPasswordPage = lazy(() => import("@/pages/auth/ForgotPassword").then(m => ({ default: m.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import("@/pages/auth/ResetPassword").then(m => ({ default: m.ResetPasswordPage })));
+const StudentLoginPage = lazy(() => import("@/pages/auth/StudentLogin").then(m => ({ default: m.StudentLoginPage })));
+const StudentRegisterPage = lazy(() => import("@/pages/auth/StudentRegister").then(m => ({ default: m.StudentRegisterPage })));
+const StudentForgotPasswordPage = lazy(() => import("@/pages/auth/StudentForgotPassword").then(m => ({ default: m.StudentForgotPasswordPage })));
+const TeacherLoginPage = lazy(() => import("@/pages/auth/TeacherLogin").then(m => ({ default: m.TeacherLoginPage })));
+const TeacherForgotPasswordPage = lazy(() => import("@/pages/auth/TeacherForgotPassword").then(m => ({ default: m.TeacherForgotPasswordPage })));
+const AdminLoginPage = lazy(() => import("@/pages/auth/AdminLogin").then(m => ({ default: m.AdminLoginPage })));
+const AdminForgotPasswordPage = lazy(() => import("@/pages/auth/AdminForgotPassword").then(m => ({ default: m.AdminForgotPasswordPage })));
 
-// Student Pages
-import { StudentDashboardPage } from "@/pages/student/StudentDashboard";
-import { StudentCoursesPage } from "@/pages/student/MyCourses";
-import { StudentLessonsPage } from "@/pages/student/Lesson";
-import { StudentMaterialsPage } from "@/pages/student/StudyMaterials";
-import { StudentAssignmentsPage } from "@/pages/student/Assignments";
-import { StudentQuizzesPage } from "@/pages/student/Quizzes";
-import { StudentResultsPage } from "@/pages/student/Results";
-import { StudentAttendancePage } from "@/pages/student/Attendance";
-import { StudentCertificatesPage } from "@/pages/student/Certificates";
-import { StudentAITutorPage } from "@/pages/student/AIHindiTutor";
-import { StudentNotificationsPage } from "@/pages/student/Notifications";
-import { StudentProfilePage } from "@/pages/student/Profile";
+// Student Pages (lazy)
+const StudentDashboardPage = lazy(() => import("@/pages/student/StudentDashboard").then(m => ({ default: m.StudentDashboardPage })));
+const StudentCoursesPage = lazy(() => import("@/pages/student/MyCourses").then(m => ({ default: m.StudentCoursesPage })));
+const StudentLessonsPage = lazy(() => import("@/pages/student/Lesson").then(m => ({ default: m.StudentLessonsPage })));
+const StudentMaterialsPage = lazy(() => import("@/pages/student/StudyMaterials").then(m => ({ default: m.StudentMaterialsPage })));
+const StudentAssignmentsPage = lazy(() => import("@/pages/student/Assignments").then(m => ({ default: m.StudentAssignmentsPage })));
+const StudentQuizzesPage = lazy(() => import("@/pages/student/Quizzes").then(m => ({ default: m.StudentQuizzesPage })));
+const StudentResultsPage = lazy(() => import("@/pages/student/Results").then(m => ({ default: m.StudentResultsPage })));
+const StudentAttendancePage = lazy(() => import("@/pages/student/Attendance").then(m => ({ default: m.StudentAttendancePage })));
+const StudentCertificatesPage = lazy(() => import("@/pages/student/Certificates").then(m => ({ default: m.StudentCertificatesPage })));
+const StudentAITutorPage = lazy(() => import("@/pages/student/AIHindiTutor").then(m => ({ default: m.StudentAITutorPage })));
+const StudentNotificationsPage = lazy(() => import("@/pages/student/Notifications").then(m => ({ default: m.StudentNotificationsPage })));
+const StudentProfilePage = lazy(() => import("@/pages/student/Profile").then(m => ({ default: m.StudentProfilePage })));
 
-// Teacher Pages
-import { TeacherDashboardPage } from "@/pages/teacher/TeacherDashboard";
-import { TeacherStudentsPage } from "@/pages/teacher/MyStudents";
-import { TeacherCoursesPage } from "@/pages/teacher/Courses";
-import { TeacherLessonsPage } from "@/pages/teacher/Lessons";
-import { TeacherAssignmentsPage } from "@/pages/teacher/Assignments";
-import { TeacherSubmissionsPage } from "@/pages/teacher/Submissions";
-import { TeacherQuizzesPage } from "@/pages/teacher/Quizzes";
-import { TeacherQuestionBankPage } from "@/pages/teacher/QuestionBank";
-import { TeacherAttendancePage } from "@/pages/teacher/Attendance";
-import { TeacherPerformancePage } from "@/pages/teacher/StudentPerformance";
-import { TeacherAnnouncementsPage } from "@/pages/teacher/Announcements";
-import { TeacherProfilePage } from "@/pages/teacher/Profile";
+// Teacher Pages (lazy)
+const TeacherDashboardPage = lazy(() => import("@/pages/teacher/TeacherDashboard").then(m => ({ default: m.TeacherDashboardPage })));
+const TeacherStudentsPage = lazy(() => import("@/pages/teacher/MyStudents").then(m => ({ default: m.TeacherStudentsPage })));
+const TeacherCoursesPage = lazy(() => import("@/pages/teacher/Courses").then(m => ({ default: m.TeacherCoursesPage })));
+const TeacherLessonsPage = lazy(() => import("@/pages/teacher/Lessons").then(m => ({ default: m.TeacherLessonsPage })));
+const TeacherAssignmentsPage = lazy(() => import("@/pages/teacher/Assignments").then(m => ({ default: m.TeacherAssignmentsPage })));
+const TeacherSubmissionsPage = lazy(() => import("@/pages/teacher/Submissions").then(m => ({ default: m.TeacherSubmissionsPage })));
+const TeacherQuizzesPage = lazy(() => import("@/pages/teacher/Quizzes").then(m => ({ default: m.TeacherQuizzesPage })));
+const TeacherQuestionBankPage = lazy(() => import("@/pages/teacher/QuestionBank").then(m => ({ default: m.TeacherQuestionBankPage })));
+const TeacherAttendancePage = lazy(() => import("@/pages/teacher/Attendance").then(m => ({ default: m.TeacherAttendancePage })));
+const TeacherPerformancePage = lazy(() => import("@/pages/teacher/StudentPerformance").then(m => ({ default: m.TeacherPerformancePage })));
+const TeacherAnnouncementsPage = lazy(() => import("@/pages/teacher/Announcements").then(m => ({ default: m.TeacherAnnouncementsPage })));
+const TeacherProfilePage = lazy(() => import("@/pages/teacher/Profile").then(m => ({ default: m.TeacherProfilePage })));
 
-// Admin Pages
-import { AdminDashboardPage } from "@/pages/admin/AdminDashboard";
-import { AdminUsersPage } from "@/pages/admin/Users";
-import { AdminStudentsPage } from "@/pages/admin/Students";
-import { AdminTeachersPage } from "@/pages/admin/Teachers";
-import { AdminCoursesPage } from "@/pages/admin/Courses";
-import { AdminLessonsPage } from "@/pages/admin/Lessons";
-import { AdminMaterialsPage } from "@/pages/admin/StudyMaterials";
-import { AdminAssignmentsPage } from "@/pages/admin/Assignments";
-import { AdminQuizzesPage } from "@/pages/admin/Quizzes";
-import { AdminQuestionBankPage } from "@/pages/admin/QuestionBank";
-import { AdminAIGeneratorPage } from "@/pages/admin/AIQuestionGenerator";
-import { AdminAttendancePage } from "@/pages/admin/Attendance";
-import { AdminResultsPage } from "@/pages/admin/Results";
-import { AdminCertificatesPage } from "@/pages/admin/Certificates";
-import { AdminBlogPage } from "@/pages/admin/Blog";
-import { AdminAnnouncementsPage } from "@/pages/admin/Announcements";
-import { AdminNotificationsPage } from "@/pages/admin/Notifications";
-import { AdminPaymentsPage } from "@/pages/admin/Payments";
-import { AdminReportsPage } from "@/pages/admin/Reports";
-import { AdminAnalyticsPage } from "@/pages/admin/Analytics";
-import { AdminSettingsPage } from "@/pages/admin/Settings";
+// Admin Pages (lazy)
+const AdminDashboardPage = lazy(() => import("@/pages/admin/AdminDashboard").then(m => ({ default: m.AdminDashboardPage })));
+const AdminUsersPage = lazy(() => import("@/pages/admin/Users").then(m => ({ default: m.AdminUsersPage })));
+const AdminStudentsPage = lazy(() => import("@/pages/admin/Students").then(m => ({ default: m.AdminStudentsPage })));
+const AdminTeachersPage = lazy(() => import("@/pages/admin/Teachers").then(m => ({ default: m.AdminTeachersPage })));
+const AdminCoursesPage = lazy(() => import("@/pages/admin/Courses").then(m => ({ default: m.AdminCoursesPage })));
+const AdminLessonsPage = lazy(() => import("@/pages/admin/Lessons").then(m => ({ default: m.AdminLessonsPage })));
+const AdminMaterialsPage = lazy(() => import("@/pages/admin/StudyMaterials").then(m => ({ default: m.AdminMaterialsPage })));
+const AdminAssignmentsPage = lazy(() => import("@/pages/admin/Assignments").then(m => ({ default: m.AdminAssignmentsPage })));
+const AdminQuizzesPage = lazy(() => import("@/pages/admin/Quizzes").then(m => ({ default: m.AdminQuizzesPage })));
+const AdminQuestionBankPage = lazy(() => import("@/pages/admin/QuestionBank").then(m => ({ default: m.AdminQuestionBankPage })));
+const AdminAIGeneratorPage = lazy(() => import("@/pages/admin/AIQuestionGenerator").then(m => ({ default: m.AdminAIGeneratorPage })));
+const AdminAttendancePage = lazy(() => import("@/pages/admin/Attendance").then(m => ({ default: m.AdminAttendancePage })));
+const AdminResultsPage = lazy(() => import("@/pages/admin/Results").then(m => ({ default: m.AdminResultsPage })));
+const AdminCertificatesPage = lazy(() => import("@/pages/admin/Certificates").then(m => ({ default: m.AdminCertificatesPage })));
+const AdminBlogPage = lazy(() => import("@/pages/admin/Blog").then(m => ({ default: m.AdminBlogPage })));
+const AdminAnnouncementsPage = lazy(() => import("@/pages/admin/Announcements").then(m => ({ default: m.AdminAnnouncementsPage })));
+const AdminNotificationsPage = lazy(() => import("@/pages/admin/Notifications").then(m => ({ default: m.AdminNotificationsPage })));
+const AdminPaymentsPage = lazy(() => import("@/pages/admin/Payments").then(m => ({ default: m.AdminPaymentsPage })));
+const AdminReportsPage = lazy(() => import("@/pages/admin/Reports").then(m => ({ default: m.AdminReportsPage })));
+const AdminAnalyticsPage = lazy(() => import("@/pages/admin/Analytics").then(m => ({ default: m.AdminAnalyticsPage })));
+const AdminSettingsPage = lazy(() => import("@/pages/admin/Settings").then(m => ({ default: m.AdminSettingsPage })));
+
+function LazyFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <PageLoader />
+    </div>
+  );
+}
 
 export function AppRoutes() {
   return (
@@ -102,81 +111,81 @@ export function AppRoutes() {
         <Route path="/certificate/verify/:certificateNumber" element={<CertificateVerifyPage />} />
 
         {/* Legacy generic auth */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/login" element={<Suspense fallback={<LazyFallback />}><LoginPage /></Suspense>} />
+        <Route path="/register" element={<Suspense fallback={<LazyFallback />}><RegisterPage /></Suspense>} />
+        <Route path="/forgot-password" element={<Suspense fallback={<LazyFallback />}><ForgotPasswordPage /></Suspense>} />
+        <Route path="/reset-password" element={<Suspense fallback={<LazyFallback />}><ResetPasswordPage /></Suspense>} />
 
         {/* Separate portal auth - public pages */}
-        <Route path="/student/login" element={<StudentLoginPage />} />
-        <Route path="/student/register" element={<StudentRegisterPage />} />
-        <Route path="/student/forgot-password" element={<StudentForgotPasswordPage />} />
-        <Route path="/teacher/login" element={<TeacherLoginPage />} />
-        <Route path="/teacher/forgot-password" element={<TeacherForgotPasswordPage />} />
-        <Route path="/admin/login" element={<AdminLoginPage />} />
-        <Route path="/admin/forgot-password" element={<AdminForgotPasswordPage />} />
+        <Route path="/student/login" element={<Suspense fallback={<LazyFallback />}><StudentLoginPage /></Suspense>} />
+        <Route path="/student/register" element={<Suspense fallback={<LazyFallback />}><StudentRegisterPage /></Suspense>} />
+        <Route path="/student/forgot-password" element={<Suspense fallback={<LazyFallback />}><StudentForgotPasswordPage /></Suspense>} />
+        <Route path="/teacher/login" element={<Suspense fallback={<LazyFallback />}><TeacherLoginPage /></Suspense>} />
+        <Route path="/teacher/forgot-password" element={<Suspense fallback={<LazyFallback />}><TeacherForgotPasswordPage /></Suspense>} />
+        <Route path="/admin/login" element={<Suspense fallback={<LazyFallback />}><AdminLoginPage /></Suspense>} />
+        <Route path="/admin/forgot-password" element={<Suspense fallback={<LazyFallback />}><AdminForgotPasswordPage /></Suspense>} />
       </Route>
 
       {/* Student portal - protected */}
       <Route element={<StudentRoute />}>
         <Route path="/student" element={<StudentLayout />}>
-          <Route path="dashboard" element={<StudentDashboardPage />} />
-          <Route path="courses" element={<StudentCoursesPage />} />
-          <Route path="lessons" element={<StudentLessonsPage />} />
-          <Route path="materials" element={<StudentMaterialsPage />} />
-          <Route path="assignments" element={<StudentAssignmentsPage />} />
-          <Route path="quizzes" element={<StudentQuizzesPage />} />
-          <Route path="results" element={<StudentResultsPage />} />
-          <Route path="attendance" element={<StudentAttendancePage />} />
-          <Route path="certificates" element={<StudentCertificatesPage />} />
-          <Route path="ai-tutor" element={<StudentAITutorPage />} />
-          <Route path="notifications" element={<StudentNotificationsPage />} />
-          <Route path="profile" element={<StudentProfilePage />} />
+          <Route path="dashboard" element={<Suspense fallback={<LazyFallback />}><StudentDashboardPage /></Suspense>} />
+          <Route path="courses" element={<Suspense fallback={<LazyFallback />}><StudentCoursesPage /></Suspense>} />
+          <Route path="lessons" element={<Suspense fallback={<LazyFallback />}><StudentLessonsPage /></Suspense>} />
+          <Route path="materials" element={<Suspense fallback={<LazyFallback />}><StudentMaterialsPage /></Suspense>} />
+          <Route path="assignments" element={<Suspense fallback={<LazyFallback />}><StudentAssignmentsPage /></Suspense>} />
+          <Route path="quizzes" element={<Suspense fallback={<LazyFallback />}><StudentQuizzesPage /></Suspense>} />
+          <Route path="results" element={<Suspense fallback={<LazyFallback />}><StudentResultsPage /></Suspense>} />
+          <Route path="attendance" element={<Suspense fallback={<LazyFallback />}><StudentAttendancePage /></Suspense>} />
+          <Route path="certificates" element={<Suspense fallback={<LazyFallback />}><StudentCertificatesPage /></Suspense>} />
+          <Route path="ai-tutor" element={<Suspense fallback={<LazyFallback />}><StudentAITutorPage /></Suspense>} />
+          <Route path="notifications" element={<Suspense fallback={<LazyFallback />}><StudentNotificationsPage /></Suspense>} />
+          <Route path="profile" element={<Suspense fallback={<LazyFallback />}><StudentProfilePage /></Suspense>} />
         </Route>
       </Route>
 
       {/* Teacher portal - protected */}
       <Route element={<TeacherRoute />}>
         <Route path="/teacher" element={<TeacherLayout />}>
-          <Route path="dashboard" element={<TeacherDashboardPage />} />
-          <Route path="students" element={<TeacherStudentsPage />} />
-          <Route path="courses" element={<TeacherCoursesPage />} />
-          <Route path="lessons" element={<TeacherLessonsPage />} />
-          <Route path="assignments" element={<TeacherAssignmentsPage />} />
-          <Route path="submissions" element={<TeacherSubmissionsPage />} />
-          <Route path="quizzes" element={<TeacherQuizzesPage />} />
-          <Route path="question-bank" element={<TeacherQuestionBankPage />} />
-          <Route path="attendance" element={<TeacherAttendancePage />} />
-          <Route path="performance" element={<TeacherPerformancePage />} />
-          <Route path="announcements" element={<TeacherAnnouncementsPage />} />
-          <Route path="profile" element={<TeacherProfilePage />} />
+          <Route path="dashboard" element={<Suspense fallback={<LazyFallback />}><TeacherDashboardPage /></Suspense>} />
+          <Route path="students" element={<Suspense fallback={<LazyFallback />}><TeacherStudentsPage /></Suspense>} />
+          <Route path="courses" element={<Suspense fallback={<LazyFallback />}><TeacherCoursesPage /></Suspense>} />
+          <Route path="lessons" element={<Suspense fallback={<LazyFallback />}><TeacherLessonsPage /></Suspense>} />
+          <Route path="assignments" element={<Suspense fallback={<LazyFallback />}><TeacherAssignmentsPage /></Suspense>} />
+          <Route path="submissions" element={<Suspense fallback={<LazyFallback />}><TeacherSubmissionsPage /></Suspense>} />
+          <Route path="quizzes" element={<Suspense fallback={<LazyFallback />}><TeacherQuizzesPage /></Suspense>} />
+          <Route path="question-bank" element={<Suspense fallback={<LazyFallback />}><TeacherQuestionBankPage /></Suspense>} />
+          <Route path="attendance" element={<Suspense fallback={<LazyFallback />}><TeacherAttendancePage /></Suspense>} />
+          <Route path="performance" element={<Suspense fallback={<LazyFallback />}><TeacherPerformancePage /></Suspense>} />
+          <Route path="announcements" element={<Suspense fallback={<LazyFallback />}><TeacherAnnouncementsPage /></Suspense>} />
+          <Route path="profile" element={<Suspense fallback={<LazyFallback />}><TeacherProfilePage /></Suspense>} />
         </Route>
       </Route>
 
       {/* Admin portal - protected */}
       <Route element={<AdminRoute />}>
         <Route path="/admin" element={<AdminLayout />}>
-          <Route path="dashboard" element={<AdminDashboardPage />} />
-          <Route path="users" element={<AdminUsersPage />} />
-          <Route path="students" element={<AdminStudentsPage />} />
-          <Route path="teachers" element={<AdminTeachersPage />} />
-          <Route path="courses" element={<AdminCoursesPage />} />
-          <Route path="lessons" element={<AdminLessonsPage />} />
-          <Route path="materials" element={<AdminMaterialsPage />} />
-          <Route path="assignments" element={<AdminAssignmentsPage />} />
-          <Route path="quizzes" element={<AdminQuizzesPage />} />
-          <Route path="question-bank" element={<AdminQuestionBankPage />} />
-          <Route path="ai-generator" element={<AdminAIGeneratorPage />} />
-          <Route path="attendance" element={<AdminAttendancePage />} />
-          <Route path="results" element={<AdminResultsPage />} />
-          <Route path="certificates" element={<AdminCertificatesPage />} />
-          <Route path="blog" element={<AdminBlogPage />} />
-          <Route path="announcements" element={<AdminAnnouncementsPage />} />
-          <Route path="notifications" element={<AdminNotificationsPage />} />
-          <Route path="payments" element={<AdminPaymentsPage />} />
-          <Route path="reports" element={<AdminReportsPage />} />
-          <Route path="analytics" element={<AdminAnalyticsPage />} />
-          <Route path="settings" element={<AdminSettingsPage />} />
+          <Route path="dashboard" element={<Suspense fallback={<LazyFallback />}><AdminDashboardPage /></Suspense>} />
+          <Route path="users" element={<Suspense fallback={<LazyFallback />}><AdminUsersPage /></Suspense>} />
+          <Route path="students" element={<Suspense fallback={<LazyFallback />}><AdminStudentsPage /></Suspense>} />
+          <Route path="teachers" element={<Suspense fallback={<LazyFallback />}><AdminTeachersPage /></Suspense>} />
+          <Route path="courses" element={<Suspense fallback={<LazyFallback />}><AdminCoursesPage /></Suspense>} />
+          <Route path="lessons" element={<Suspense fallback={<LazyFallback />}><AdminLessonsPage /></Suspense>} />
+          <Route path="materials" element={<Suspense fallback={<LazyFallback />}><AdminMaterialsPage /></Suspense>} />
+          <Route path="assignments" element={<Suspense fallback={<LazyFallback />}><AdminAssignmentsPage /></Suspense>} />
+          <Route path="quizzes" element={<Suspense fallback={<LazyFallback />}><AdminQuizzesPage /></Suspense>} />
+          <Route path="question-bank" element={<Suspense fallback={<LazyFallback />}><AdminQuestionBankPage /></Suspense>} />
+          <Route path="ai-generator" element={<Suspense fallback={<LazyFallback />}><AdminAIGeneratorPage /></Suspense>} />
+          <Route path="attendance" element={<Suspense fallback={<LazyFallback />}><AdminAttendancePage /></Suspense>} />
+          <Route path="results" element={<Suspense fallback={<LazyFallback />}><AdminResultsPage /></Suspense>} />
+          <Route path="certificates" element={<Suspense fallback={<LazyFallback />}><AdminCertificatesPage /></Suspense>} />
+          <Route path="blog" element={<Suspense fallback={<LazyFallback />}><AdminBlogPage /></Suspense>} />
+          <Route path="announcements" element={<Suspense fallback={<LazyFallback />}><AdminAnnouncementsPage /></Suspense>} />
+          <Route path="notifications" element={<Suspense fallback={<LazyFallback />}><AdminNotificationsPage /></Suspense>} />
+          <Route path="payments" element={<Suspense fallback={<LazyFallback />}><AdminPaymentsPage /></Suspense>} />
+          <Route path="reports" element={<Suspense fallback={<LazyFallback />}><AdminReportsPage /></Suspense>} />
+          <Route path="analytics" element={<Suspense fallback={<LazyFallback />}><AdminAnalyticsPage /></Suspense>} />
+          <Route path="settings" element={<Suspense fallback={<LazyFallback />}><AdminSettingsPage /></Suspense>} />
         </Route>
       </Route>
 
