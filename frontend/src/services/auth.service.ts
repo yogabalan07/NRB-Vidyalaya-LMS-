@@ -1,13 +1,98 @@
-// Placeholder - Auth service will be implemented in auth milestone
+import { supabase } from "./supabase";
+import type { Profile, Role } from "@/types/auth";
+
+function mapProfile(row: Record<string, unknown>): Profile {
+  return {
+    id: row.id as string,
+    email: row.email as string,
+    full_name: row.full_name as string,
+    role: (row.role as Role) || "STUDENT",
+    phone: (row.phone as string) || undefined,
+    avatar_url: (row.avatar_url as string) || undefined,
+    status: (row.status as string) || "active",
+    created_at: row.created_at as string,
+    updated_at: row.updated_at as string,
+  };
+}
+
 export const authService = {
-  login: async (_email: string, _password: string) => {
-    throw new Error("Not implemented");
+  async signUp(email: string, password: string, fullName: string, phone?: string) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          phone: phone || "",
+          role: "STUDENT",
+        },
+      },
+    });
+    if (error) throw error;
+    return data;
   },
-  register: async (_email: string, _password: string, _name: string) => {
-    throw new Error("Not implemented");
+
+  async signIn(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data;
   },
-  logout: async () => {
-    throw new Error("Not implemented");
+
+  async signOut() {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
   },
-  getCurrentUser: () => null,
+
+  async resetPassword(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) throw error;
+  },
+
+  async updatePassword(newPassword: string) {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    if (error) throw error;
+  },
+
+  async getProfile(userId: string): Promise<Profile | null> {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+    if (error || !data) return null;
+    return mapProfile(data);
+  },
+
+  async updateProfile(
+    userId: string,
+    updates: { full_name?: string; phone?: string; avatar_url?: string }
+  ): Promise<Profile | null> {
+    const { data, error } = await supabase
+      .from("profiles")
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq("id", userId)
+      .select()
+      .single();
+    if (error || !data) return null;
+    return mapProfile(data);
+  },
+
+  async getSession() {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    return data.session;
+  },
+
+  onAuthStateChange(callback: (event: string, session: unknown) => void) {
+    return supabase.auth.onAuthStateChange((event, session) => {
+      callback(event, session);
+    });
+  },
 };

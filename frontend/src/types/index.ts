@@ -1,9 +1,6 @@
-export enum Role {
-  SUPER_ADMIN = "SUPER_ADMIN",
-  ADMIN = "ADMIN",
-  TEACHER = "TEACHER",
-  STUDENT = "STUDENT",
-}
+export type { Role, User, Profile, LoginCredentials, RegisterData } from "./auth";
+
+export { ALL_ROLES, STUDENT_ROLE } from "./auth";
 
 export enum LessonStatus {
   DRAFT = "DRAFT",

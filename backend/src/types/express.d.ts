@@ -1,5 +1,6 @@
 import type { Request } from "express";
-import type { Role } from "./ai.js";
+
+export type Role = "SUPER_ADMIN" | "ADMIN" | "TEACHER" | "STUDENT";
 
 export interface AuthUser {
   id: string;
