@@ -1,11 +1,5 @@
 import { describe, it, expect } from "vitest";
 
-describe("NRB Vidyalaya LMS", () => {
-  it("should have correct project name", () => {
-    expect("NRB Vidyalaya LMS").toBe("NRB Vidyalaya LMS");
-  });
-});
-
 describe("Login Validation", () => {
   it("rejects invalid email", async () => {
     const { loginSchema } = await import("@/utils/validators");

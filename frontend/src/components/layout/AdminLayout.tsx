@@ -141,7 +141,7 @@ function PortalSidebar({ title, navItems }: PortalSidebarProps) {
               {user?.fullName || title}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              {user?.email || "admin@nrb.com"}
+              {user?.email || ""}
             </p>
           </div>
           <Button

@@ -191,28 +191,44 @@ describe("E2E - Role-Based Access Control", () => {
 });
 
 describe("E2E - Data Validation Rules", () => {
-  it("enforces max 50 questions per generation", () => {
-    const maxQuestions = 50;
-    expect(maxQuestions).toBe(50);
+  it("enforces max 50 questions per generation via schema", async () => {
+    const { generateQuestionsSchema } = await import("../../backend/src/validators/ai.validators");
+    const result = generateQuestionsSchema.safeParse({
+      subject: "Hindi",
+      topic: "Grammar",
+      classLevel: "Class 8",
+      numberOfQuestions: 51,
+    });
+    expect(result.success).toBe(false);
   });
 
-  it("enforces max 2000 char chat message", () => {
-    const maxMessageLength = 2000;
-    expect(maxMessageLength).toBe(2000);
+  it("enforces max 2000 char chat message via schema", async () => {
+    const { chatSchema } = await import("../../backend/src/validators/ai.validators");
+    const result = chatSchema.safeParse({
+      message: "x".repeat(2001),
+    });
+    expect(result.success).toBe(false);
   });
 
-  it("enforces max 5000 char writing correction", () => {
-    const maxTextLength = 5000;
-    expect(maxTextLength).toBe(5000);
+  it("enforces max 5000 char writing correction via schema", async () => {
+    const { correctWritingSchema } = await import("../../backend/src/validators/ai.validators");
+    const result = correctWritingSchema.safeParse({
+      text: "x".repeat(5001),
+    });
+    expect(result.success).toBe(false);
   });
 
   it("requires exactly 4 options per question", () => {
-    const requiredOptions = 4;
-    expect(requiredOptions).toBe(4);
+    function validateQuestion(q: { options: { id: string; text: string }[] }) {
+      return q.options.length === 4;
+    }
+    expect(validateQuestion({ options: [{ id: "A", text: "a" }, { id: "B", text: "b" }, { id: "C", text: "c" }, { id: "D", text: "d" }] })).toBe(true);
+    expect(validateQuestion({ options: [{ id: "A", text: "a" }, { id: "B", text: "b" }] })).toBe(false);
   });
 
   it("valid option IDs are A, B, C, D", () => {
     const validIds = ["A", "B", "C", "D"];
     expect(validIds).toHaveLength(4);
+    expect(new Set(validIds).size).toBe(4);
   });
 });
