@@ -429,7 +429,27 @@ export function useCertificates(userId: string) {
 export function useCertificateVerify(certificateNumber: string) {
   return useQuery({
     queryKey: ["certificate", "verify", certificateNumber],
-    queryFn: () => certificateService.getCertificateByNumber(certificateNumber),
+    queryFn: async () => {
+      const response = await fetch(
+        `/api/certificates/verify/${certificateNumber}`
+      );
+      if (!response.ok) {
+        throw new Error("Verification failed");
+      }
+      const result = await response.json();
+      return result.data as {
+        valid: boolean;
+        message?: string;
+        certificate?: {
+          institution: string;
+          studentName: string;
+          course: string;
+          completionDate: string;
+          certificateNumber: string;
+          status: string;
+        };
+      };
+    },
     enabled: !!certificateNumber,
   });
 }

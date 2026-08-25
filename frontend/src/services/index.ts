@@ -12,8 +12,17 @@ import type { Notification } from "@/types/notification";
 import type { BlogPost } from "@/types/blog";
 import type { AIConversation, AIMessage } from "@/types/ai";
 
+function snakeToCamel(str: string): string {
+  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
 function mapRow<T>(row: Record<string, unknown>): T {
-  return row as unknown as T;
+  if (!row) return row as T;
+  const mapped: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(row)) {
+    mapped[snakeToCamel(key)] = value;
+  }
+  return mapped as T;
 }
 
 // ─── Course Service ────────────────────────────────────────────

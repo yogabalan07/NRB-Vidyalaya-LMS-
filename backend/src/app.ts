@@ -2,13 +2,26 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { config } from "./config/environment.js";
+import { rateLimiter } from "./middleware/rateLimit.middleware.js";
+import { errorHandler } from "./middleware/error.middleware.js";
+import aiRoutes from "./routes/ai.routes.js";
+import certificateRoutes from "./routes/certificate.routes.js";
 
 const app: express.Express = express();
 
 app.use(helmet());
-app.use(cors({ origin: config.nodeEnv === "development" ? "http://localhost:3000" : "" }));
+app.use(
+  cors({
+    origin:
+      config.nodeEnv === "development"
+        ? ["http://localhost:3000", "http://localhost:4000"]
+        : "",
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
+app.use(rateLimiter);
 
 app.get("/api/health", (_req, res) => {
   res.json({
@@ -18,10 +31,9 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
-// Placeholder route groups
-// TODO: Add route imports
-// app.use("/api/auth", authRoutes);
-// app.use("/api/users", userRoutes);
-// app.use("/api/courses", courseRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/certificates", certificateRoutes);
+
+app.use(errorHandler);
 
 export default app;

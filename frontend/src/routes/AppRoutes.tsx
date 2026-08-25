@@ -18,6 +18,7 @@ import { BlogPage } from "@/pages/public/Blog";
 import { BlogDetailsPage } from "@/pages/public/BlogDetails";
 import { ContactPage } from "@/pages/public/Contact";
 import { AnnouncementsPage } from "@/pages/public/Announcements";
+import { CertificateVerifyPage } from "@/pages/public/CertificateVerify";
 import { NotFoundPage } from "@/pages/public/NotFound";
 // Legacy generic auth pages
 import { LoginPage } from "@/pages/auth/Login";
@@ -98,6 +99,7 @@ export function AppRoutes() {
         <Route path="/blog/:slug" element={<BlogDetailsPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/announcements" element={<AnnouncementsPage />} />
+        <Route path="/certificate/verify/:certificateNumber" element={<CertificateVerifyPage />} />
 
         {/* Legacy generic auth */}
         <Route path="/login" element={<LoginPage />} />
