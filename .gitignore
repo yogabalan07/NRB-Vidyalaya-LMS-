@@ -1,10 +1,17 @@
 ﻿node_modules/
+
+# Environment files (NEVER commit secrets)
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
+
 dist/
 build/
 .next/
 .vite/
 coverage/
 *.log
+
+# Supabase
+supabase/.temp/
