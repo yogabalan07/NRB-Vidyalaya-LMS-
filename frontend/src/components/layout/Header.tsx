@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, Menu, X, LogOut, User } from "lucide-react";
-import { useState } from "react";
+import { BookOpen, Menu, X, LogOut, User, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ROUTES } from "@/constants/routes";
@@ -18,12 +18,14 @@ const navLinks = [
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [loginDropdownOpen, setLoginDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, signOut, getRedirectPath } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     await signOut();
-    navigate(ROUTES.LOGIN, { replace: true });
+    navigate(ROUTES.HOME, { replace: true });
     setMobileOpen(false);
   };
 
@@ -31,6 +33,16 @@ export function Header() {
     navigate(getRedirectPath());
     setMobileOpen(false);
   };
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setLoginDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -78,14 +90,44 @@ export function Header() {
               </div>
             </>
           ) : (
-            <>
-              <Button variant="ghost" asChild>
-                <Link to={ROUTES.LOGIN}>Login</Link>
+            <div className="relative" ref={dropdownRef}>
+              <Button
+                variant="ghost"
+                onClick={() => setLoginDropdownOpen(!loginDropdownOpen)}
+                className="gap-1"
+              >
+                Login
+                <ChevronDown className={cn("h-4 w-4 transition-transform", loginDropdownOpen && "rotate-180")} />
               </Button>
+              {loginDropdownOpen && (
+                <div className="absolute right-0 top-full mt-1 w-48 rounded-md border bg-card p-1 shadow-md animate-fade-in">
+                  <Link
+                    to={ROUTES.STUDENT_LOGIN}
+                    onClick={() => setLoginDropdownOpen(false)}
+                    className="flex w-full items-center rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  >
+                    Student Login
+                  </Link>
+                  <Link
+                    to={ROUTES.TEACHER_LOGIN}
+                    onClick={() => setLoginDropdownOpen(false)}
+                    className="flex w-full items-center rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  >
+                    Teacher Login
+                  </Link>
+                  <Link
+                    to={ROUTES.ADMIN_LOGIN}
+                    onClick={() => setLoginDropdownOpen(false)}
+                    className="flex w-full items-center rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  >
+                    Admin Login
+                  </Link>
+                </div>
+              )}
               <Button asChild>
-                <Link to={ROUTES.REGISTER}>Get Started</Link>
+                <Link to={ROUTES.STUDENT_REGISTER}>Get Started</Link>
               </Button>
-            </>
+            </div>
           )}
         </div>
 
@@ -129,14 +171,26 @@ export function Header() {
                 </>
               ) : (
                 <>
+                  <p className="text-xs font-medium text-muted-foreground px-1">Student</p>
                   <Button variant="outline" asChild>
-                    <Link to={ROUTES.LOGIN} onClick={() => setMobileOpen(false)}>
-                      Login
+                    <Link to={ROUTES.STUDENT_LOGIN} onClick={() => setMobileOpen(false)}>
+                      Student Login
+                    </Link>
+                  </Button>
+                  <p className="text-xs font-medium text-muted-foreground px-1">Teachers & Admins</p>
+                  <Button variant="outline" asChild>
+                    <Link to={ROUTES.TEACHER_LOGIN} onClick={() => setMobileOpen(false)}>
+                      Teacher Login
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link to={ROUTES.ADMIN_LOGIN} onClick={() => setMobileOpen(false)}>
+                      Admin Login
                     </Link>
                   </Button>
                   <Button asChild>
-                    <Link to={ROUTES.REGISTER} onClick={() => setMobileOpen(false)}>
-                      Get Started
+                    <Link to={ROUTES.STUDENT_REGISTER} onClick={() => setMobileOpen(false)}>
+                      Register as Student
                     </Link>
                   </Button>
                 </>

@@ -15,6 +15,11 @@ const footerLinks = {
     { label: "Contact", to: ROUTES.CONTACT },
     { label: "FAQ", to: ROUTES.FAQ },
   ],
+  portals: [
+    { label: "Student Login", to: ROUTES.STUDENT_LOGIN },
+    { label: "Teacher Login", to: ROUTES.TEACHER_LOGIN },
+    { label: "Admin Login", to: ROUTES.ADMIN_LOGIN },
+  ],
   support: [
     { label: "Help Center", to: ROUTES.FAQ },
     { label: "Terms of Service", to: ROUTES.HOME },
@@ -27,7 +32,7 @@ export function Footer() {
   return (
     <footer className="border-t bg-muted/50">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-6">
           <div className="lg:col-span-2">
             <Link to={ROUTES.HOME} className="flex items-center gap-2 mb-4">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
@@ -79,6 +84,22 @@ export function Footer() {
             <h3 className="mb-3 text-sm font-semibold">Company</h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
+                <li key={link.label}>
+                  <Link
+                    to={link.to}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-3 text-sm font-semibold">Portals</h3>
+            <ul className="space-y-2">
+              {footerLinks.portals.map((link) => (
                 <li key={link.label}>
                   <Link
                     to={link.to}

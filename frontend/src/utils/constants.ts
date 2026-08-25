@@ -13,6 +13,15 @@ export const ROUTES = {
   FORGOT_PASSWORD: "/forgot-password",
   RESET_PASSWORD: "/reset-password",
 
+  // Separate portal auth
+  STUDENT_LOGIN: "/student/login",
+  STUDENT_REGISTER: "/student/register",
+  STUDENT_FORGOT_PASSWORD: "/student/forgot-password",
+  TEACHER_LOGIN: "/teacher/login",
+  TEACHER_FORGOT_PASSWORD: "/teacher/forgot-password",
+  ADMIN_LOGIN: "/admin/login",
+  ADMIN_FORGOT_PASSWORD: "/admin/forgot-password",
+
   STUDENT: {
     DASHBOARD: "/student/dashboard",
     COURSES: "/student/courses",

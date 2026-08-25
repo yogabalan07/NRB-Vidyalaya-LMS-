@@ -8,10 +8,25 @@ export const ROUTES = {
   CONTACT: "/contact",
   ANNOUNCEMENTS: "/announcements",
   FAQ: "/faq",
+
+  // Legacy generic auth (kept for backward compatibility)
   LOGIN: "/login",
   REGISTER: "/register",
   FORGOT_PASSWORD: "/forgot-password",
   RESET_PASSWORD: "/reset-password",
+
+  // Student portal auth
+  STUDENT_LOGIN: "/student/login",
+  STUDENT_REGISTER: "/student/register",
+  STUDENT_FORGOT_PASSWORD: "/student/forgot-password",
+
+  // Teacher portal auth
+  TEACHER_LOGIN: "/teacher/login",
+  TEACHER_FORGOT_PASSWORD: "/teacher/forgot-password",
+
+  // Admin portal auth
+  ADMIN_LOGIN: "/admin/login",
+  ADMIN_FORGOT_PASSWORD: "/admin/forgot-password",
 
   STUDENT_DASHBOARD: "/student/dashboard",
   STUDENT_COURSES: "/student/courses",

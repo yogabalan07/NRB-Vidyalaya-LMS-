@@ -19,10 +19,20 @@ import { BlogDetailsPage } from "@/pages/public/BlogDetails";
 import { ContactPage } from "@/pages/public/Contact";
 import { AnnouncementsPage } from "@/pages/public/Announcements";
 import { NotFoundPage } from "@/pages/public/NotFound";
+// Legacy generic auth pages
 import { LoginPage } from "@/pages/auth/Login";
 import { RegisterPage } from "@/pages/auth/Register";
 import { ForgotPasswordPage } from "@/pages/auth/ForgotPassword";
 import { ResetPasswordPage } from "@/pages/auth/ResetPassword";
+
+// Separate portal auth pages
+import { StudentLoginPage } from "@/pages/auth/StudentLogin";
+import { StudentRegisterPage } from "@/pages/auth/StudentRegister";
+import { StudentForgotPasswordPage } from "@/pages/auth/StudentForgotPassword";
+import { TeacherLoginPage } from "@/pages/auth/TeacherLogin";
+import { TeacherForgotPasswordPage } from "@/pages/auth/TeacherForgotPassword";
+import { AdminLoginPage } from "@/pages/auth/AdminLogin";
+import { AdminForgotPasswordPage } from "@/pages/auth/AdminForgotPassword";
 
 // Student Pages
 import { StudentDashboardPage } from "@/pages/student/StudentDashboard";
@@ -88,10 +98,21 @@ export function AppRoutes() {
         <Route path="/blog/:slug" element={<BlogDetailsPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/announcements" element={<AnnouncementsPage />} />
+
+        {/* Legacy generic auth */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+        {/* Separate portal auth - public pages */}
+        <Route path="/student/login" element={<StudentLoginPage />} />
+        <Route path="/student/register" element={<StudentRegisterPage />} />
+        <Route path="/student/forgot-password" element={<StudentForgotPasswordPage />} />
+        <Route path="/teacher/login" element={<TeacherLoginPage />} />
+        <Route path="/teacher/forgot-password" element={<TeacherForgotPasswordPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin/forgot-password" element={<AdminForgotPasswordPage />} />
       </Route>
 
       {/* Student portal - protected */}

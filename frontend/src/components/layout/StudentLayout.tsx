@@ -49,7 +49,7 @@ function PortalSidebar({ title, navItems }: PortalSidebarProps) {
 
   const handleLogout = async () => {
     await signOut();
-    navigate(ROUTES.LOGIN, { replace: true });
+    navigate(ROUTES.HOME, { replace: true });
   };
 
   return (
