@@ -274,7 +274,7 @@ export async function verifyCertificate(
     const supabase = getSupabaseClient();
     const { data: certificate, error } = await supabase
       .from("certificates")
-      .select("id, certificate_number, student_name, course_name, issue_date, status")
+      .select("id, certificate_number, issued_at, user_id, course_id")
       .eq("certificate_number", certificateNumber)
       .single();
 
@@ -286,15 +286,32 @@ export async function verifyCertificate(
       return;
     }
 
+    let studentName = "Student";
+    let courseName = "Course";
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", certificate.user_id)
+      .single();
+    if (profile) studentName = profile.full_name;
+
+    const { data: course } = await supabase
+      .from("courses")
+      .select("title")
+      .eq("id", certificate.course_id)
+      .single();
+    if (course) courseName = course.title;
+
     sendSuccess(res, {
       valid: true,
       certificate: {
         institution: "NRB Vidyalaya",
-        studentName: certificate.student_name,
-        course: certificate.course_name,
-        completionDate: certificate.issue_date,
+        studentName,
+        course: courseName,
+        completionDate: certificate.issued_at,
         certificateNumber: certificate.certificate_number,
-        status: certificate.status,
+        status: "active",
       },
     });
   } catch (error) {

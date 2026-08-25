@@ -1,5 +1,6 @@
 -- NRB Vidyalaya LMS - Run All Migrations
 -- Execute this against the Supabase PostgreSQL database
+-- Using psql: psql -f supabase/run_all_migrations.sql
 
 -- Migration 001: Profiles
 \i supabase/migrations/001_create_profiles.sql
@@ -17,3 +18,9 @@
 \i supabase/migrations/007_create_core_tables.sql
 -- Migration 008: Enhanced Auth RLS
 \i supabase/migrations/008_enhance_auth_rls.sql
+-- Migration 009: Complete RLS Policies
+\i supabase/migrations/009_complete_rls_policies.sql
+-- Migration 010: Storage Buckets
+\i supabase/migrations/010_storage_buckets.sql
+-- Migration 011: Study Materials Table and Storage Fix
+\i supabase/migrations/011_study_materials_and_fix.sql

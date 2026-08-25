@@ -15,7 +15,6 @@ export function authMiddleware(
 
   const token = authHeader.split(" ")[1];
 
-  // Use Supabase to verify the JWT token
   const supabase = getSupabaseClient();
   supabase.auth
     .getUser(token)
@@ -26,19 +25,30 @@ export function authMiddleware(
       }
 
       const supabaseUser = data.user;
-      const role =
-        (supabaseUser.app_metadata?.role as Role) ||
-        (supabaseUser.user_metadata?.role as Role) ||
-        "STUDENT";
 
-      const authUser: AuthUser = {
-        id: supabaseUser.id,
-        email: supabaseUser.email || "",
-        role,
-      };
+      // Read role from profiles table (database is source of truth, not JWT metadata)
+      return supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", supabaseUser.id)
+        .single()
+        .then(({ data: profile, error: profileError }) => {
+          if (profileError || !profile) {
+            res.status(401).json({ status: "error", message: "Profile not found" });
+            return;
+          }
 
-      (req as { user?: AuthUser }).user = authUser;
-      next();
+          const role = profile.role as Role;
+
+          const authUser: AuthUser = {
+            id: supabaseUser.id,
+            email: supabaseUser.email || "",
+            role,
+          };
+
+          (req as { user?: AuthUser }).user = authUser;
+          next();
+        });
     })
     .catch(() => {
       res.status(401).json({ status: "error", message: "Authentication failed" });

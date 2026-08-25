@@ -10,12 +10,14 @@ import certificateRoutes from "./routes/certificate.routes.js";
 const app: express.Express = express();
 
 app.use(helmet());
+
+const allowedOrigins = config.nodeEnv === "development"
+  ? ["http://localhost:3000", "http://localhost:4000"]
+  : config.allowedOrigins;
+
 app.use(
   cors({
-    origin:
-      config.nodeEnv === "development"
-        ? ["http://localhost:3000", "http://localhost:4000"]
-        : "",
+    origin: allowedOrigins,
     credentials: true,
   })
 );
