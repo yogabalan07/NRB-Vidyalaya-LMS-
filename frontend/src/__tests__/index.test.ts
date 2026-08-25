@@ -1,5 +1,4 @@
 import { describe, it, expect } from "vitest";
-import { loginSchema, registerSchema } from "@/utils/validators";
 
 describe("NRB Vidyalaya LMS", () => {
   it("should have correct project name", () => {
@@ -8,24 +7,28 @@ describe("NRB Vidyalaya LMS", () => {
 });
 
 describe("Login Validation", () => {
-  it("rejects invalid email", () => {
+  it("rejects invalid email", async () => {
+    const { loginSchema } = await import("@/utils/validators");
     const result = loginSchema.safeParse({ email: "not-email", password: "123456" });
     expect(result.success).toBe(false);
   });
 
-  it("rejects short password", () => {
+  it("rejects short password", async () => {
+    const { loginSchema } = await import("@/utils/validators");
     const result = loginSchema.safeParse({ email: "test@example.com", password: "123" });
     expect(result.success).toBe(false);
   });
 
-  it("accepts valid login data", () => {
+  it("accepts valid login data", async () => {
+    const { loginSchema } = await import("@/utils/validators");
     const result = loginSchema.safeParse({ email: "test@example.com", password: "123456" });
     expect(result.success).toBe(true);
   });
 });
 
 describe("Registration Validation", () => {
-  it("rejects short name", () => {
+  it("rejects short name", async () => {
+    const { registerSchema } = await import("@/utils/validators");
     const result = registerSchema.safeParse({
       fullName: "A",
       email: "test@example.com",
@@ -35,7 +38,8 @@ describe("Registration Validation", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects mismatched passwords", () => {
+  it("rejects mismatched passwords", async () => {
+    const { registerSchema } = await import("@/utils/validators");
     const result = registerSchema.safeParse({
       fullName: "Test User",
       email: "test@example.com",
@@ -45,7 +49,8 @@ describe("Registration Validation", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects weak password without uppercase", () => {
+  it("rejects weak password without uppercase", async () => {
+    const { registerSchema } = await import("@/utils/validators");
     const result = registerSchema.safeParse({
       fullName: "Test User",
       email: "test@example.com",
@@ -55,7 +60,8 @@ describe("Registration Validation", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects weak password without number", () => {
+  it("rejects weak password without number", async () => {
+    const { registerSchema } = await import("@/utils/validators");
     const result = registerSchema.safeParse({
       fullName: "Test User",
       email: "test@example.com",
@@ -65,7 +71,8 @@ describe("Registration Validation", () => {
     expect(result.success).toBe(false);
   });
 
-  it("accepts valid registration data", () => {
+  it("accepts valid registration data", async () => {
+    const { registerSchema } = await import("@/utils/validators");
     const result = registerSchema.safeParse({
       fullName: "Test User",
       email: "test@example.com",
@@ -75,7 +82,8 @@ describe("Registration Validation", () => {
     expect(result.success).toBe(true);
   });
 
-  it("accepts optional phone", () => {
+  it("accepts optional phone", async () => {
+    const { registerSchema } = await import("@/utils/validators");
     const result = registerSchema.safeParse({
       fullName: "Test User",
       email: "test@example.com",
@@ -86,7 +94,8 @@ describe("Registration Validation", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects invalid phone format", () => {
+  it("rejects invalid phone format", async () => {
+    const { registerSchema } = await import("@/utils/validators");
     const result = registerSchema.safeParse({
       fullName: "Test User",
       email: "test@example.com",
@@ -99,19 +108,13 @@ describe("Registration Validation", () => {
 });
 
 describe("Role Security", () => {
-  it("default registration role is STUDENT", () => {
-    // The registration form does not expose role selection
-    // Role is set server-side via Supabase trigger
-    // This test verifies our Zod schema does not include a role field
+  it("default registration role is STUDENT", async () => {
+    const { registerSchema } = await import("@/utils/validators");
     const fields = Object.keys(registerSchema.innerType().shape);
     expect(fields).not.toContain("role");
   });
-});
 
-describe("Protected Routes", () => {
   it("student cannot access admin route", () => {
-    // This is enforced by ProtectedRoute component checking allowedRoles
-    // Student roles are checked against ADMIN allowedRoles
     const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
     const studentRole = "STUDENT";
     expect(allowedRoles).not.toContain(studentRole);
@@ -127,5 +130,21 @@ describe("Protected Routes", () => {
     const allowedRoles = ["TEACHER", "ADMIN", "SUPER_ADMIN"];
     const studentRole = "STUDENT";
     expect(allowedRoles).not.toContain(studentRole);
+  });
+});
+
+describe("Route Constants", () => {
+  it("has all portal login routes", async () => {
+    const { ROUTES } = await import("@/constants/routes");
+    expect(ROUTES.STUDENT_LOGIN).toBe("/student/login");
+    expect(ROUTES.TEACHER_LOGIN).toBe("/teacher/login");
+    expect(ROUTES.ADMIN_LOGIN).toBe("/admin/login");
+  });
+
+  it("has student portal routes", async () => {
+    const { ROUTES } = await import("@/constants/routes");
+    expect(ROUTES.STUDENT_DASHBOARD).toBe("/student/dashboard");
+    expect(ROUTES.STUDENT_COURSES).toBe("/student/courses");
+    expect(ROUTES.STUDENT_QUIZZES).toBe("/student/quizzes");
   });
 });

@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { BookOpen, Brain, Users, Award, ArrowRight, Star } from "lucide-react";
 import { Button } from "@/components/common/Button";
 import { Card, CardContent } from "@/components/ui/card";
+import { statsService } from "@/services";
+import { useQuery } from "@tanstack/react-query";
 
 const features = [
   { icon: BookOpen, title: "Structured Courses", description: "Well-organized Hindi curriculum from beginner to advanced." },
@@ -10,14 +12,18 @@ const features = [
   { icon: Award, title: "Certified Learning", description: "Earn certificates upon course completion." },
 ];
 
-const stats = [
-  { value: "500+", label: "Students" },
-  { value: "50+", label: "Courses" },
-  { value: "1000+", label: "Lessons" },
-  { value: "98%", label: "Satisfaction" },
-];
-
 export function HomePage() {
+  const { data: stats } = useQuery({
+    queryKey: ["stats", "public"],
+    queryFn: statsService.getDashboardStats,
+  });
+
+  const displayStats = [
+    { value: stats ? `${stats.totalStudents}+` : "0", label: "Students" },
+    { value: stats ? `${stats.publishedCourses}+` : "0", label: "Courses" },
+    { value: stats ? `${stats.totalLessons}+` : "0", label: "Lessons" },
+    { value: stats ? `${stats.totalEnrollments}+` : "0", label: "Enrollments" },
+  ];
   return (
     <div className="flex flex-col">
       <section className="relative overflow-hidden bg-gradient-to-br from-nrb-950 via-nrb-900 to-primary py-20 lg:py-28">
@@ -47,7 +53,7 @@ export function HomePage() {
       <section className="border-b bg-muted/30 py-12">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            {stats.map((stat) => (
+            {displayStats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-3xl font-bold text-primary">{stat.value}</div>
                 <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
