@@ -15,6 +15,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ROUTES } from "@/constants/routes";
+import { FadeIn } from "@/components/animations";
+import { AnimatedCounter } from "@/components/animations/AnimatedCounter";
 
 function StatCard({
   title,
@@ -29,13 +31,17 @@ function StatCard({
   description?: string;
   href?: string;
 }) {
+  const numericValue = typeof value === "number" ? value : parseInt(String(value).replace(/[^0-9]/g, ""), 10);
+  const suffix = typeof value === "string" ? value.replace(/[0-9]/g, "") : "";
   const content = (
-    <Card>
+    <Card className="transition-shadow hover:shadow-md">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold">{value}</p>
+            <p className="text-2xl font-bold">
+              {isNaN(numericValue) ? value : <AnimatedCounter value={numericValue} suffix={suffix} />}
+            </p>
             {description && (
               <p className="text-xs text-muted-foreground mt-1">{description}</p>
             )}
@@ -94,30 +100,38 @@ export function StudentDashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Enrolled Courses"
-          value={stats?.enrolledCourses || 0}
-          icon={GraduationCap}
-          href={ROUTES.STUDENT_COURSES}
-        />
-        <StatCard
-          title="Average Progress"
-          value={`${stats?.averageProgress || 0}%`}
-          icon={TrendingUp}
-          description="Across all courses"
-        />
-        <StatCard
-          title="Completed Quizzes"
-          value={stats?.completedQuizzes || 0}
-          icon={ClipboardCheck}
-          href={ROUTES.STUDENT_QUIZZES}
-        />
-        <StatCard
-          title="Certificates"
-          value={stats?.certificates || 0}
-          icon={Award}
-          href={ROUTES.STUDENT_CERTIFICATES}
-        />
+        <FadeIn delay={0}>
+          <StatCard
+            title="Enrolled Courses"
+            value={stats?.enrolledCourses || 0}
+            icon={GraduationCap}
+            href={ROUTES.STUDENT_COURSES}
+          />
+        </FadeIn>
+        <FadeIn delay={100}>
+          <StatCard
+            title="Average Progress"
+            value={`${stats?.averageProgress || 0}%`}
+            icon={TrendingUp}
+            description="Across all courses"
+          />
+        </FadeIn>
+        <FadeIn delay={200}>
+          <StatCard
+            title="Completed Quizzes"
+            value={stats?.completedQuizzes || 0}
+            icon={ClipboardCheck}
+            href={ROUTES.STUDENT_QUIZZES}
+          />
+        </FadeIn>
+        <FadeIn delay={300}>
+          <StatCard
+            title="Certificates"
+            value={stats?.certificates || 0}
+            icon={Award}
+            href={ROUTES.STUDENT_CERTIFICATES}
+          />
+        </FadeIn>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -162,7 +176,7 @@ export function StudentDashboardPage() {
                     </div>
                     <div className="h-2 w-24 rounded-full bg-muted overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-primary transition-all"
+                        className="h-full rounded-full bg-primary animate-progress-fill transition-all"
                         style={{ width: `${enrollment.progressPercent}%` }}
                       />
                     </div>

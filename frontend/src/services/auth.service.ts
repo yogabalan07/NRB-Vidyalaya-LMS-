@@ -1,9 +1,5 @@
-import { createClient, type Session } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import type { Profile, Role } from "@/types/auth";
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
 function mapProfile(row: Record<string, unknown>): Profile {
   return {
@@ -17,14 +13,6 @@ function mapProfile(row: Record<string, unknown>): Profile {
     created_at: row.created_at as string,
     updated_at: row.updated_at as string,
   };
-}
-
-function authedClient(session: Session) {
-  return createClient(supabaseUrl, supabaseAnonKey, {
-    global: {
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    },
-  });
 }
 
 export const authService = {
@@ -74,16 +62,23 @@ export const authService = {
 
   async getProfile(userId: string): Promise<Profile | null> {
     const { data: sessionData } = await supabase.auth.getSession();
-    const session = sessionData?.session;
-    if (!session) return null;
+    if (!sessionData?.session) return null;
 
-    const client = authedClient(session);
-    const { data, error } = await client
+    const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .single();
-    if (error || !data) return null;
+    if (error) {
+      console.error("[authService] getProfile error:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
+      return null;
+    }
+    if (!data) return null;
     return mapProfile(data);
   },
 
@@ -92,11 +87,9 @@ export const authService = {
     updates: { full_name?: string; phone?: string; avatar_url?: string }
   ): Promise<Profile | null> {
     const { data: sessionData } = await supabase.auth.getSession();
-    const session = sessionData?.session;
-    if (!session) return null;
+    if (!sessionData?.session) return null;
 
-    const client = authedClient(session);
-    const { data, error } = await client
+    const { data, error } = await supabase
       .from("profiles")
       .update({ ...updates, updated_at: new Date().toISOString() })
       .eq("id", userId)

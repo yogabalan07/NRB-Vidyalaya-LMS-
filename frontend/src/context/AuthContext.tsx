@@ -13,9 +13,10 @@ import type { Profile, Role } from "@/types/auth";
 export interface AuthUser {
   id: string;
   email: string;
-  role: Role;
+  role: Role | null;
   fullName: string;
   avatarUrl?: string;
+  profileLoaded: boolean;
 }
 
 export interface AuthContextType {
@@ -46,7 +47,7 @@ export function useAuth(): AuthContextType {
   return context;
 }
 
-function getRoleRedirectPath(role: Role): string {
+function getRoleRedirectPath(role: Role | null): string {
   switch (role) {
     case "SUPER_ADMIN":
     case "ADMIN":
@@ -67,12 +68,13 @@ function mapUser(
   return {
     id: authUser.id,
     email: authUser.email || profile?.email || "",
-    role: profile?.role || "STUDENT",
+    role: profile?.role ?? null,
     fullName:
       profile?.full_name ||
       (authUser.user_metadata?.full_name as string) ||
       "",
     avatarUrl: profile?.avatar_url || undefined,
+    profileLoaded: profile !== null,
   };
 }
 
@@ -81,17 +83,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
+  const profileCacheRef = useRef<Map<string, Profile>>(new Map());
 
   const loadProfile = useCallback(
     async (userId: string): Promise<Profile | null> => {
+      const cached = profileCacheRef.current.get(userId);
+      if (cached) {
+        setProfile(cached);
+        return cached;
+      }
       try {
         const profileData = await authService.getProfile(userId);
         if (mountedRef.current) {
+          if (profileData) {
+            profileCacheRef.current.set(userId, profileData);
+          } else {
+            profileCacheRef.current.delete(userId);
+          }
           setProfile(profileData);
         }
         return profileData;
       } catch {
         if (mountedRef.current) {
+          profileCacheRef.current.delete(userId);
           setProfile(null);
         }
         return null;
@@ -104,6 +118,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (event: string, session: unknown) => {
       if (!mountedRef.current) return;
 
+      if (event === "TOKEN_REFRESHED") return;
+
       const authSession = session as {
         user?: {
           id: string;
@@ -115,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (event === "SIGNED_OUT" || !authSession?.user) {
         setUser(null);
         setProfile(null);
+        profileCacheRef.current.clear();
         setLoading(false);
         return;
       }
@@ -189,6 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await authService.signOut();
     setUser(null);
     setProfile(null);
+    profileCacheRef.current.clear();
   }, []);
 
   const resetPassword = useCallback(async (email: string) => {
@@ -197,6 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshProfile = useCallback(async () => {
     if (user) {
+      profileCacheRef.current.delete(user.id);
       await loadProfile(user.id);
     }
   }, [user, loadProfile]);

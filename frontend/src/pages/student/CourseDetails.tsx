@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/EmptyState";
 import { cn } from "@/lib/utils";
+import { AnimatedProgressRing } from "@/components/animations";
 
 export function StudentCourseDetailsPage() {
   const { courseId } = useParams<{ courseId: string }>();
@@ -184,18 +185,21 @@ export function StudentCourseDetailsPage() {
               <CardTitle className="text-sm">Progress</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Completed</span>
-                  <span className="font-medium">
-                    {completedLessons.size}/{publishedLessons.length}
-                  </span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all"
-                    style={{ width: `${progressPercent}%` }}
-                  />
+              <div className="flex items-center gap-4">
+                <AnimatedProgressRing progress={progressPercent} size={64} strokeWidth={5} />
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Completed</span>
+                    <span className="font-medium">
+                      {completedLessons.size}/{publishedLessons.length}
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-primary animate-progress-fill transition-all"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </CardContent>
