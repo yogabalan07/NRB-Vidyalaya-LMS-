@@ -24,3 +24,5 @@
 \i supabase/migrations/010_storage_buckets.sql
 -- Migration 011: Study Materials Table and Storage Fix
 \i supabase/migrations/011_study_materials_and_fix.sql
+-- Migration 012: Fix Profiles RLS Recursion (CRITICAL)
+\i supabase/migrations/012_fix_profiles_rls_recursion.sql
