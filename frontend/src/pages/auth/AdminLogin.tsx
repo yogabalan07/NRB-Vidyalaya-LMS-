@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,6 +30,14 @@ export function AdminLoginPage() {
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
   });
+
+  useEffect(() => {
+    if (isAuthenticated && !authLoading && user?.profileLoaded) {
+      if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
+        navigate(ROUTES.ADMIN_DASHBOARD, { replace: true });
+      }
+    }
+  }, [isAuthenticated, authLoading, user, navigate]);
 
   if (isAuthenticated && !authLoading && user) {
     if (!user.profileLoaded) {
@@ -73,7 +81,6 @@ export function AdminLoginPage() {
         </div>
       );
     }
-    navigate(ROUTES.ADMIN_DASHBOARD, { replace: true });
     return null;
   }
 

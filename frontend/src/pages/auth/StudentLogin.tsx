@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,6 +31,12 @@ export function StudentLoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  useEffect(() => {
+    if (isAuthenticated && !authLoading && user?.profileLoaded && user.role === "STUDENT") {
+      navigate(ROUTES.STUDENT_DASHBOARD, { replace: true });
+    }
+  }, [isAuthenticated, authLoading, user, navigate]);
+
   if (isAuthenticated && !authLoading && user) {
     if (user.role !== "STUDENT") {
       return (
@@ -54,7 +60,6 @@ export function StudentLoginPage() {
         </div>
       );
     }
-    navigate(ROUTES.STUDENT_DASHBOARD, { replace: true });
     return null;
   }
 

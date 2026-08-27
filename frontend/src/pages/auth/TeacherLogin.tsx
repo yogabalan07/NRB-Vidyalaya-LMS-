@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,6 +31,14 @@ export function TeacherLoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  useEffect(() => {
+    if (isAuthenticated && !authLoading && user?.profileLoaded) {
+      if (user.role === "TEACHER" || user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
+        navigate(getRedirectPath(), { replace: true });
+      }
+    }
+  }, [isAuthenticated, authLoading, user, navigate, getRedirectPath]);
+
   if (isAuthenticated && !authLoading && user) {
     if (user.role !== "TEACHER" && user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
       return (
@@ -54,7 +62,6 @@ export function TeacherLoginPage() {
         </div>
       );
     }
-    navigate(getRedirectPath(), { replace: true });
     return null;
   }
 
