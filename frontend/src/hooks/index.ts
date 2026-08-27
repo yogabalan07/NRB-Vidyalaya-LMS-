@@ -19,6 +19,7 @@ import {
   submissionService,
   profileService,
   statsService,
+  adminService,
 } from "@/services";
 
 export function useAuth() {
@@ -652,5 +653,102 @@ export function useUpdateProfile() {
     mutationFn: ({ userId, updates }: { userId: string; updates: Parameters<typeof profileService.updateProfile>[1] }) =>
       profileService.updateProfile(userId, updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["profiles"] }),
+  });
+}
+
+// ─── Admin User Hooks ────────────────────────────────────────
+export interface AdminUserListParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: string;
+  status?: string;
+}
+
+export function useAdminUsers(params?: AdminUserListParams) {
+  return useQuery({
+    queryKey: ["admin", "users", params],
+    queryFn: () => adminService.listUsers(params),
+  });
+}
+
+export function useAdminUser(id: string) {
+  return useQuery({
+    queryKey: ["admin", "user", id],
+    queryFn: () => adminService.getUser(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateAdminUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: adminService.createUser,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "users"] }),
+  });
+}
+
+export function useUpdateAdminUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof adminService.updateUser>[1] }) =>
+      adminService.updateUser(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "users"] }),
+  });
+}
+
+export function useDeleteAdminUser() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: adminService.deleteUser,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "users"] }),
+  });
+}
+
+// ─── Admin Material Hooks ─────────────────────────────────────
+export interface AdminMaterialListParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  courseId?: string;
+}
+
+export function useAdminMaterials(params?: AdminMaterialListParams) {
+  return useQuery({
+    queryKey: ["admin", "materials", params],
+    queryFn: () => adminService.listMaterials(params),
+  });
+}
+
+export function useAdminMaterial(id: string) {
+  return useQuery({
+    queryKey: ["admin", "material", id],
+    queryFn: () => adminService.getMaterial(id),
+    enabled: !!id,
+  });
+}
+
+export function useCreateAdminMaterial() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: adminService.createMaterial,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "materials"] }),
+  });
+}
+
+export function useUpdateAdminMaterial() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Parameters<typeof adminService.updateMaterial>[1] }) =>
+      adminService.updateMaterial(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "materials"] }),
+  });
+}
+
+export function useDeleteAdminMaterial() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: adminService.deleteMaterial,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "materials"] }),
   });
 }

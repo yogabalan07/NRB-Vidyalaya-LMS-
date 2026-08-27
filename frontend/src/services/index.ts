@@ -11,6 +11,14 @@ import type { Payment } from "@/types/payment";
 import type { Notification } from "@/types/notification";
 import type { BlogPost } from "@/types/blog";
 import type { AIConversation, AIMessage } from "@/types/ai";
+import type {
+  StudyMaterial,
+  CreateMaterialData,
+  UpdateMaterialData,
+  AdminUser,
+  CreateUserData,
+  UpdateUserData,
+} from "@/types/admin";
 
 function snakeToCamel(str: string): string {
   return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -1422,5 +1430,124 @@ export const statsService = {
       attendancePercentage: 0,
       certificates: certificates.length,
     };
+  },
+};
+
+// ─── Admin Service (uses backend API for privileged operations) ───
+const API_BASE = "/api";
+
+async function adminFetch<T>(
+  path: string,
+  options?: RequestInit
+): Promise<T> {
+  const { supabase: supabaseClient } = await import("./supabase");
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  const token = session?.access_token;
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    },
+  });
+
+  const json = await res.json();
+  if (json.status === "error") {
+    throw new Error(json.message || "Request failed");
+  }
+  return json;
+}
+
+export const adminService = {
+  // ─── Users ──────────────────────────────────────────────
+  async listUsers(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    role?: string;
+    status?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set("page", String(params.page));
+    if (params?.limit) searchParams.set("limit", String(params.limit));
+    if (params?.search) searchParams.set("search", params.search);
+    if (params?.role) searchParams.set("role", params.role);
+    if (params?.status) searchParams.set("status", params.status);
+    const qs = searchParams.toString();
+    return adminFetch<{
+      status: string;
+      data: AdminUser[];
+      pagination: { total: number; page: number; limit: number; totalPages: number };
+    }>(`/admin/users${qs ? `?${qs}` : ""}`);
+  },
+
+  async getUser(id: string) {
+    return adminFetch<{ status: string; data: AdminUser }>(`/admin/users/${id}`);
+  },
+
+  async createUser(data: CreateUserData) {
+    return adminFetch<{ status: string; data: AdminUser }>("/admin/users", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateUser(id: string, data: UpdateUserData) {
+    return adminFetch<{ status: string; data: AdminUser }>(`/admin/users/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteUser(id: string) {
+    return adminFetch<{ status: string; data: { message: string } }>(`/admin/users/${id}`, {
+      method: "DELETE",
+    });
+  },
+
+  // ─── Materials ──────────────────────────────────────────
+  async listMaterials(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    courseId?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set("page", String(params.page));
+    if (params?.limit) searchParams.set("limit", String(params.limit));
+    if (params?.search) searchParams.set("search", params.search);
+    if (params?.courseId) searchParams.set("courseId", params.courseId);
+    const qs = searchParams.toString();
+    return adminFetch<{
+      status: string;
+      data: StudyMaterial[];
+      pagination: { total: number; page: number; limit: number; totalPages: number };
+    }>(`/admin/materials${qs ? `?${qs}` : ""}`);
+  },
+
+  async getMaterial(id: string) {
+    return adminFetch<{ status: string; data: StudyMaterial }>(`/admin/materials/${id}`);
+  },
+
+  async createMaterial(data: CreateMaterialData) {
+    return adminFetch<{ status: string; data: StudyMaterial }>("/admin/materials", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  },
+
+  async updateMaterial(id: string, data: UpdateMaterialData) {
+    return adminFetch<{ status: string; data: StudyMaterial }>(`/admin/materials/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  },
+
+  async deleteMaterial(id: string) {
+    return adminFetch<{ status: string; data: { message: string } }>(`/admin/materials/${id}`, {
+      method: "DELETE",
+    });
   },
 };
