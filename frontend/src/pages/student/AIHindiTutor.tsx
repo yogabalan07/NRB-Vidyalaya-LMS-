@@ -23,6 +23,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AnimatedAI } from "@/components/animations/AnimatedAI";
+import { AnimatedVoiceWave } from "@/components/animations/AnimatedVoiceWave";
+import { FadeIn } from "@/components/animations";
 import type { AIMessage } from "@/types/ai";
 
 type Level = "beginner" | "intermediate" | "advanced";
@@ -62,25 +65,27 @@ interface MessageBubbleProps {
 function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === "user";
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div
-        className={`flex max-w-[75%] items-start gap-2 rounded-2xl px-4 py-3 ${
-          isUser
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-foreground"
-        }`}
-      >
-        {!isUser && (
-          <Bot className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-        )}
-        <p className="whitespace-pre-wrap text-sm leading-relaxed">
-          {message.content}
-        </p>
-        {isUser && (
-          <User className="mt-0.5 h-4 w-4 shrink-0 text-primary-foreground" />
-        )}
+    <FadeIn direction={isUser ? "right" : "left"} duration="fast">
+      <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+        <div
+          className={`flex max-w-[75%] items-start gap-2 rounded-2xl px-4 py-3 ${
+            isUser
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-foreground"
+          }`}
+        >
+          {!isUser && (
+            <Bot className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          )}
+          <p className="whitespace-pre-wrap text-sm leading-relaxed">
+            {message.content}
+          </p>
+          {isUser && (
+            <User className="mt-0.5 h-4 w-4 shrink-0 text-primary-foreground" />
+          )}
+        </div>
       </div>
-    </div>
+    </FadeIn>
   );
 }
 
@@ -329,8 +334,8 @@ export function StudentAITutorPage() {
         <div className="flex-1 overflow-y-auto p-4">
           {!activeConversationId ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
-              <div className="mb-4 rounded-full bg-primary/10 p-4">
-                <Sparkles className="h-10 w-10 text-primary" />
+              <div className="mb-4">
+                <AnimatedAI size={100} state="idle" />
               </div>
               <h2 className="text-xl font-semibold">
                 Welcome to AI Hindi Tutor
@@ -352,8 +357,8 @@ export function StudentAITutorPage() {
             <ChatSkeleton />
           ) : displayMessages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
-              <Bot className="mb-4 h-10 w-10 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
+              <AnimatedAI size={80} state="idle" />
+              <p className="mt-4 text-sm text-muted-foreground">
                 Send a message to start the conversation!
               </p>
             </div>
@@ -366,11 +371,7 @@ export function StudentAITutorPage() {
                 <div className="flex justify-start">
                   <div className="flex items-center gap-2 rounded-2xl bg-muted px-4 py-3">
                     <Bot className="h-4 w-4 text-primary" />
-                    <div className="flex gap-1">
-                      <span className="h-2 w-2 animate-bounce rounded-full bg-primary/60 [animation-delay:-0.3s]" />
-                      <span className="h-2 w-2 animate-bounce rounded-full bg-primary/60 [animation-delay:-0.15s]" />
-                      <span className="h-2 w-2 animate-bounce rounded-full bg-primary/60" />
-                    </div>
+                    <AnimatedVoiceWave barCount={4} isActive className="text-primary" />
                   </div>
                 </div>
               )}

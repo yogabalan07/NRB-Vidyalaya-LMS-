@@ -125,10 +125,10 @@ export function StudentProfilePage() {
               <p className="text-sm text-muted-foreground">{user.email}</p>
               <Badge
                 variant="secondary"
-                className={`mt-2 ${roleBadgeColor[user.role] || ""}`}
+                className={`mt-2 ${user.role ? roleBadgeColor[user.role] || "" : ""}`}
               >
                 <Shield className="mr-1 h-3 w-3" />
-                {user.role.replace("_", " ")}
+                {user.role?.replace("_", " ") || "Unknown"}
               </Badge>
               <div className="mt-4 w-full space-y-2 border-t pt-4">
                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -244,7 +244,7 @@ export function StudentProfilePage() {
                   <div>
                     <p className="text-xs text-muted-foreground">Role</p>
                     <p className="text-sm font-medium">
-                      {user.role.replace("_", " ")}
+                      {user.role?.replace("_", " ") || "Unknown"}
                     </p>
                   </div>
                 </div>

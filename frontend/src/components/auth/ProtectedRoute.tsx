@@ -71,12 +71,27 @@ export function ProtectedRoute({
     return <Navigate to={redirectPath} replace />;
   }
 
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+  if (user && !user.profileLoaded) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md text-center">
+          <div className="mb-4 rounded-md bg-destructive/10 p-4">
+            <p className="text-sm text-destructive font-medium">
+              Your user profile could not be loaded.
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Please contact an administrator to set up your account properly.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (allowedRoles && user && user.role && !allowedRoles.includes(user.role)) {
     const userDashboard = dashboardMap[user.role];
     const userLogin = portalLoginMap[user.role];
 
-    // If user is trying to access a portal they don't belong to,
-    // show them an unauthorized message instead of silently redirecting
     if (portalName !== "this") {
       return <UnauthorizedAccess portalName={portalName} />;
     }
