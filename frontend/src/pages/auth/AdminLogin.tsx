@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { loginSchema, type LoginInput } from "@/utils/validators";
 import { ROUTES } from "@/constants/routes";
+import { LoginBackground } from "@/components/animations";
 
 export function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -31,6 +32,25 @@ export function AdminLoginPage() {
   });
 
   if (isAuthenticated && !authLoading && user) {
+    if (!user.profileLoaded) {
+      return (
+        <div className="flex min-h-[70vh] items-center justify-center px-4 py-12">
+          <div className="w-full max-w-md text-center">
+            <div className="mb-4 rounded-md bg-destructive/10 p-4">
+              <p className="text-sm text-destructive font-medium">
+                Your user profile could not be loaded.
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Please contact an administrator to set up your account properly.
+              </p>
+            </div>
+            <Button asChild variant="ghost" className="mt-2">
+              <Link to={ROUTES.HOME}>Back to Home</Link>
+            </Button>
+          </div>
+        </div>
+      );
+    }
     if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
       return (
         <div className="flex min-h-[70vh] items-center justify-center px-4 py-12">
@@ -78,7 +98,8 @@ export function AdminLoginPage() {
 
   return (
     <div className="flex min-h-[70vh] items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
+      <LoginBackground variant="admin" />
+      <div className="w-full max-w-md relative z-10">
         <div className="mb-8 text-center">
           <Link to={ROUTES.HOME} className="inline-flex items-center gap-2 mb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">

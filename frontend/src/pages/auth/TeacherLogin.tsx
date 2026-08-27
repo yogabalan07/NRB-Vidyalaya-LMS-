@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { loginSchema, type LoginInput } from "@/utils/validators";
 import { ROUTES } from "@/constants/routes";
+import { LoginBackground } from "@/components/animations";
 
 export function TeacherLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -78,7 +79,8 @@ export function TeacherLoginPage() {
 
   return (
     <div className="flex min-h-[70vh] items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
+      <LoginBackground variant="teacher" />
+      <div className="w-full max-w-md relative z-10">
         <div className="mb-8 text-center">
           <Link to={ROUTES.HOME} className="inline-flex items-center gap-2 mb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">

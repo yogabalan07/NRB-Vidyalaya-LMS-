@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PageLoader } from "@/components/common/Loader";
 import { ErrorState } from "@/components/common/ErrorState";
+import { FadeIn, AnimatedSuccess, AnimatedStars } from "@/components/animations";
 import type { Question } from "@/types/question";
 import type { QuizAnswer } from "@/types/quiz";
 
@@ -107,17 +108,24 @@ function ResultSummary({
 }) {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="text-center space-y-2">
-        {result.passed ? (
-          <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto" />
-        ) : (
-          <XCircle className="h-16 w-16 text-destructive mx-auto" />
-        )}
-        <h2 className="text-2xl font-bold">
-          {result.passed ? "Congratulations!" : "Better Luck Next Time!"}
-        </h2>
-        <p className="text-muted-foreground">{quizTitle}</p>
-      </div>
+      <FadeIn direction="up" duration="slow">
+        <div className="text-center space-y-2 relative">
+          {result.passed && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <AnimatedStars count={8} />
+            </div>
+          )}
+          {result.passed ? (
+            <AnimatedSuccess size={80} className="mx-auto" />
+          ) : (
+            <XCircle className="h-16 w-16 text-destructive mx-auto" />
+          )}
+          <h2 className="text-2xl font-bold">
+            {result.passed ? "Congratulations!" : "Better Luck Next Time!"}
+          </h2>
+          <p className="text-muted-foreground">{quizTitle}</p>
+        </div>
+      </FadeIn>
 
       <Card>
         <CardContent className="p-6">
@@ -163,13 +171,14 @@ function ResultSummary({
           {result.answers.map((ans, i) => (
             <div
               key={ans.questionId}
-              className={`p-3 rounded-lg border ${
+              className={`p-3 rounded-lg border transition-all ${
                 ans.isCorrect
                   ? "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/20"
                   : ans.selectedOption
                     ? "border-destructive/30 bg-destructive/5"
                     : "border-muted bg-muted/30"
               }`}
+              style={{ animationDelay: `${i * 50}ms` }}
             >
               <div className="flex items-start justify-between gap-2">
                 <p className="text-sm font-medium">Q{i + 1}</p>
@@ -500,7 +509,7 @@ export function StudentQuizAttemptPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_240px] gap-6">
         <div className="space-y-4">
           {currentQuestion && (
-            <Card>
+            <Card key={currentQuestion.id} className="animate-fade-in-up duration-300">
               <CardHeader>
                 <div className="flex items-start justify-between gap-4">
                   <CardTitle className="text-lg leading-relaxed">
