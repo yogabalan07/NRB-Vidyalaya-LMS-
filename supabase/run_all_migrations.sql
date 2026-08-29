@@ -26,3 +26,7 @@
 \i supabase/migrations/011_study_materials_and_fix.sql
 -- Migration 012: Fix Profiles RLS Recursion (CRITICAL)
 \i supabase/migrations/012_fix_profiles_rls_recursion.sql
+-- Migration 013: Admin Users and Materials
+\i supabase/migrations/013_admin_users_and_materials.sql
+-- Migration 014: Performance Indexes
+\i supabase/migrations/014_performance_indexes.sql
