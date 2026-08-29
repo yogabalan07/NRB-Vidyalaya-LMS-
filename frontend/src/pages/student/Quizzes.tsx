@@ -7,36 +7,35 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/EmptyState";
-import { enrollmentService, quizService } from "@/services";
+import { enrollmentService, quizService, courseService } from "@/services";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
+import type { Course } from "@/types/course";
 
 function QuizCard({
   quiz,
   userId,
+  courseMap,
 }: {
   quiz: { id: string; title: string; description?: string; timeLimitMinutes?: number; totalMarks: number; passPercentage: number; maxAttempts: number; courseId: string };
   userId: string;
+  courseMap: Map<string, Course>;
 }) {
   const { data: attemptCount = 0 } = useQuizAttempts(quiz.id, userId);
-  const { data: course } = useQuery({
-    queryKey: ["course", quiz.courseId],
-    queryFn: () => import("@/services").then((s) => s.courseService.getCourseById(quiz.courseId)),
-    enabled: !!quiz.courseId,
-  });
-
+  const course = courseMap.get(quiz.courseId);
   const hasAttempts = attemptCount >= quiz.maxAttempts;
 
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader>
         <div className="flex items-start justify-between">
-          <div>
+          <div className="min-w-0 flex-1">
             <CardTitle className="text-lg">{quiz.title}</CardTitle>
             {course && (
               <p className="text-sm text-muted-foreground mt-1">{course.title}</p>
             )}
           </div>
-          <Badge variant={hasAttempts ? "secondary" : "default"}>
+          <Badge variant={hasAttempts ? "secondary" : "default"} className="shrink-0 ml-2">
             {hasAttempts ? "Completed" : "Available"}
           </Badge>
         </div>
@@ -104,11 +103,31 @@ export function StudentQuizzesPage() {
     enabled: !!user?.id,
   });
 
+  const courseIds = useMemo(
+    () => [...new Set((allQuizzes || []).map((q) => q.courseId))],
+    [allQuizzes]
+  );
+
+  const { data: courseMap } = useQuery({
+    queryKey: ["courses", "batch", courseIds],
+    queryFn: async () => {
+      const results = await Promise.all(
+        courseIds.map((id) => courseService.getCourseById(id))
+      );
+      const map = new Map<string, Course>();
+      results.forEach((c) => {
+        if (c) map.set(c.id, c);
+      });
+      return map;
+    },
+    enabled: courseIds.length > 0,
+  });
+
   if (quizzesLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-48" />
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-48" />
           ))}
@@ -137,9 +156,14 @@ export function StudentQuizzesPage() {
           </Button>
         </EmptyState>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
           {allQuizzes.map((quiz) => (
-            <QuizCard key={quiz.id} quiz={quiz} userId={user?.id || ""} />
+            <QuizCard
+              key={quiz.id}
+              quiz={quiz}
+              userId={user?.id || ""}
+              courseMap={courseMap || new Map()}
+            />
           ))}
         </div>
       )}

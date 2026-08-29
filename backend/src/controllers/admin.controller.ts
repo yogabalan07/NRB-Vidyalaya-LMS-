@@ -21,7 +21,7 @@ export async function listUsers(
 
     let query = supabase
       .from("profiles")
-      .select("*", { count: "exact" });
+      .select("id,email,full_name,role,phone,avatar_url,status,created_at,updated_at", { count: "exact" });
 
     if (search) {
       query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
@@ -56,7 +56,7 @@ export async function getUser(
 
     const { data, error } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id,email,full_name,role,phone,avatar_url,status,created_at,updated_at")
       .eq("id", id)
       .single();
 
@@ -145,7 +145,7 @@ export async function updateUser(
       .from("profiles")
       .update(updates)
       .eq("id", id)
-      .select()
+      .select("id,email,full_name,role,phone,avatar_url,status,created_at,updated_at")
       .single();
 
     if (error) {
@@ -212,7 +212,7 @@ export async function listMaterials(
 
     let query = supabase
       .from("study_materials")
-      .select("*", { count: "exact" });
+      .select("id,course_id,title,description,file_url,file_type,file_size,drive_url,file_name,created_by,uploaded_by,sort_order,created_at,updated_at", { count: "exact" });
 
     if (search) {
       query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
@@ -235,34 +235,30 @@ export async function listMaterials(
       throw error;
     }
 
-    // Enrich with course titles and creator names
-    const enriched = await Promise.all(
-      (materials || []).map(async (mat) => {
-        let courseName = "";
-        let creatorName = "";
+    // Enrich with course titles and creator names using batch queries
+    const courseIds = [...new Set((materials || []).map((mat) => mat.course_id).filter(Boolean))];
+    const creatorIds = [...new Set((materials || []).map((mat) => mat.created_by || mat.uploaded_by).filter(Boolean))];
 
-        if (mat.course_id) {
-          const { data: course } = await supabase
-            .from("courses")
-            .select("title")
-            .eq("id", mat.course_id)
-            .single();
-          courseName = course?.title || "";
-        }
+    const [courseResults, creatorResults] = await Promise.all([
+      courseIds.length > 0
+        ? supabase.from("courses").select("id,title").in("id", courseIds)
+        : { data: [], error: null },
+      creatorIds.length > 0
+        ? supabase.from("profiles").select("id,full_name").in("id", creatorIds)
+        : { data: [], error: null },
+    ]);
 
-        const createdByCol = mat.created_by || mat.uploaded_by;
-        if (createdByCol) {
-          const { data: creator } = await supabase
-            .from("profiles")
-            .select("full_name")
-            .eq("id", createdByCol)
-            .single();
-          creatorName = creator?.full_name || "";
-        }
+    const courseMap = new Map<string, string>();
+    (courseResults.data || []).forEach((c: { id: string; title: string }) => courseMap.set(c.id, c.title));
 
-        return { ...mat, courseName, creatorName };
-      })
-    );
+    const creatorMap = new Map<string, string>();
+    (creatorResults.data || []).forEach((p: { id: string; full_name: string }) => creatorMap.set(p.id, p.full_name));
+
+    const enriched = (materials || []).map((mat) => ({
+      ...mat,
+      courseName: courseMap.get(mat.course_id) || "",
+      creatorName: creatorMap.get(mat.created_by || mat.uploaded_by) || "",
+    }));
 
     sendPaginated(res, enriched, count || 0, safePage, safeLimit);
   } catch (err) {
@@ -281,7 +277,7 @@ export async function getMaterial(
 
     const { data: material, error } = await supabase
       .from("study_materials")
-      .select("*")
+      .select("id,course_id,title,description,file_url,file_type,file_size,drive_url,file_name,created_by,uploaded_by,sort_order,created_at,updated_at")
       .eq("id", id)
       .single();
 
@@ -342,7 +338,7 @@ export async function createMaterial(
     const { data, error } = await supabase
       .from("study_materials")
       .insert(insertData)
-      .select()
+      .select("id,course_id,title,description,file_url,file_type,file_size,drive_url,file_name,created_by,uploaded_by,sort_order,created_at,updated_at")
       .single();
 
     if (error) {
@@ -388,7 +384,7 @@ export async function updateMaterial(
       .from("study_materials")
       .update(updates)
       .eq("id", id)
-      .select()
+      .select("id,course_id,title,description,file_url,file_type,file_size,drive_url,file_name,created_by,uploaded_by,sort_order,created_at,updated_at")
       .single();
 
     if (error) {

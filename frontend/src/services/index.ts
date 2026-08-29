@@ -38,7 +38,7 @@ export const courseService = {
   async getCourses(): Promise<Course[]> {
     const { data, error } = await supabase
       .from("courses")
-      .select("*")
+      .select("id,title,slug,description,short_description,thumbnail_url,teacher_id,is_published,difficulty,language,created_at,updated_at")
       .order("created_at", { ascending: false });
     if (error) throw error;
     return (data || []).map(mapRow<Course>);
@@ -47,7 +47,7 @@ export const courseService = {
   async getPublishedCourses(): Promise<Course[]> {
     const { data, error } = await supabase
       .from("courses")
-      .select("*")
+      .select("id,title,slug,description,short_description,thumbnail_url,teacher_id,is_published,difficulty,language,created_at,updated_at")
       .eq("is_published", true)
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -57,7 +57,7 @@ export const courseService = {
   async getCourse(slug: string): Promise<Course | null> {
     const { data, error } = await supabase
       .from("courses")
-      .select("*")
+      .select("id,title,slug,description,short_description,thumbnail_url,teacher_id,is_published,difficulty,language,created_at,updated_at")
       .eq("slug", slug)
       .single();
     if (error) return null;
@@ -67,7 +67,7 @@ export const courseService = {
   async getCourseById(id: string): Promise<Course | null> {
     const { data, error } = await supabase
       .from("courses")
-      .select("*")
+      .select("id,title,slug,description,short_description,thumbnail_url,teacher_id,is_published,difficulty,language,created_at,updated_at")
       .eq("id", id)
       .single();
     if (error) return null;
@@ -121,7 +121,7 @@ export const courseService = {
   async getCoursesForTeacher(teacherId: string): Promise<Course[]> {
     const { data, error } = await supabase
       .from("courses")
-      .select("*")
+      .select("id,title,slug,description,short_description,thumbnail_url,teacher_id,is_published,difficulty,language,created_at,updated_at")
       .eq("teacher_id", teacherId)
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -134,7 +134,7 @@ export const enrollmentService = {
   async getEnrollmentsForUser(userId: string): Promise<Enrollment[]> {
     const { data, error } = await supabase
       .from("enrollments")
-      .select("*")
+      .select("id,user_id,course_id,enrolled_at,completed_at,progress_percent")
       .eq("user_id", userId)
       .order("enrolled_at", { ascending: false });
     if (error) throw error;
@@ -144,7 +144,7 @@ export const enrollmentService = {
   async getEnrollmentsForCourse(courseId: string): Promise<Enrollment[]> {
     const { data, error } = await supabase
       .from("enrollments")
-      .select("*")
+      .select("id,user_id,course_id,enrolled_at,completed_at,progress_percent")
       .eq("course_id", courseId)
       .order("enrolled_at", { ascending: false });
     if (error) throw error;
@@ -195,7 +195,7 @@ export const lessonService = {
   async getLessons(courseId: string): Promise<Lesson[]> {
     const { data, error } = await supabase
       .from("lessons")
-      .select("*")
+      .select("id,course_id,title,content,video_url,duration_minutes,sort_order,is_published,created_at,updated_at")
       .eq("course_id", courseId)
       .order("sort_order", { ascending: true });
     if (error) throw error;
@@ -205,7 +205,7 @@ export const lessonService = {
   async getLesson(id: string): Promise<Lesson | null> {
     const { data, error } = await supabase
       .from("lessons")
-      .select("*")
+      .select("id,course_id,title,content,video_url,duration_minutes,sort_order,is_published,created_at,updated_at")
       .eq("id", id)
       .single();
     if (error) return null;
@@ -261,7 +261,7 @@ export const assignmentService = {
   async getAssignments(courseId: string): Promise<Assignment[]> {
     const { data, error } = await supabase
       .from("assignments")
-      .select("*")
+      .select("id,course_id,title,description,deadline,max_marks,created_at,updated_at")
       .eq("course_id", courseId)
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -271,7 +271,7 @@ export const assignmentService = {
   async getAssignment(id: string): Promise<Assignment | null> {
     const { data, error } = await supabase
       .from("assignments")
-      .select("*")
+      .select("id,course_id,title,description,deadline,max_marks,created_at,updated_at")
       .eq("id", id)
       .single();
     if (error) return null;
@@ -324,7 +324,7 @@ export const submissionService = {
   async getSubmissionsForAssignment(assignmentId: string): Promise<Submission[]> {
     const { data, error } = await supabase
       .from("submissions")
-      .select("*")
+      .select("id,assignment_id,user_id,file_url,notes,status,marks_obtained,feedback,submitted_at,graded_at")
       .eq("assignment_id", assignmentId)
       .order("submitted_at", { ascending: false });
     if (error) throw error;
@@ -334,7 +334,7 @@ export const submissionService = {
   async getSubmissionsForUser(userId: string): Promise<Submission[]> {
     const { data, error } = await supabase
       .from("submissions")
-      .select("*")
+      .select("id,assignment_id,user_id,file_url,notes,status,marks_obtained,feedback,submitted_at,graded_at")
       .eq("user_id", userId)
       .order("submitted_at", { ascending: false });
     if (error) throw error;
@@ -347,7 +347,7 @@ export const submissionService = {
   ): Promise<Submission | null> {
     const { data, error } = await supabase
       .from("submissions")
-      .select("*")
+      .select("id,assignment_id,user_id,file_url,notes,status,marks_obtained,feedback,submitted_at,graded_at")
       .eq("user_id", userId)
       .eq("assignment_id", assignmentId)
       .order("submitted_at", { ascending: false })
@@ -398,7 +398,7 @@ export const quizService = {
   async getQuizzes(courseId: string): Promise<Quiz[]> {
     const { data, error } = await supabase
       .from("quizzes")
-      .select("*")
+      .select("id,course_id,title,description,time_limit_minutes,total_marks,pass_percentage,max_attempts,is_published,created_at,updated_at")
       .eq("course_id", courseId)
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -408,7 +408,7 @@ export const quizService = {
   async getPublishedQuizzes(courseId: string): Promise<Quiz[]> {
     const { data, error } = await supabase
       .from("quizzes")
-      .select("*")
+      .select("id,course_id,title,description,time_limit_minutes,total_marks,pass_percentage,max_attempts,is_published,created_at,updated_at")
       .eq("course_id", courseId)
       .eq("is_published", true)
       .order("created_at", { ascending: false });
@@ -419,7 +419,7 @@ export const quizService = {
   async getQuiz(id: string): Promise<Quiz | null> {
     const { data, error } = await supabase
       .from("quizzes")
-      .select("*")
+      .select("id,course_id,title,description,time_limit_minutes,total_marks,pass_percentage,max_attempts,is_published,created_at,updated_at")
       .eq("id", id)
       .single();
     if (error) return null;
@@ -477,7 +477,7 @@ export const questionService = {
   async getQuestions(quizId: string): Promise<Question[]> {
     const { data, error } = await supabase
       .from("questions")
-      .select("*")
+      .select("id,quiz_id,question,options,correct_option,explanation,marks,difficulty,sort_order,created_at")
       .eq("quiz_id", quizId)
       .order("sort_order", { ascending: true });
     if (error) throw error;
@@ -487,7 +487,7 @@ export const questionService = {
   async getQuestion(id: string): Promise<Question | null> {
     const { data, error } = await supabase
       .from("questions")
-      .select("*")
+      .select("id,quiz_id,question,options,correct_option,explanation,marks,difficulty,sort_order,created_at")
       .eq("id", id)
       .single();
     if (error) return null;
@@ -568,7 +568,7 @@ export const questionBankService = {
     difficulty?: string;
     language?: string;
   }): Promise<QuestionBankItem[]> {
-    let query = supabase.from("question_bank").select("*");
+    let query = supabase.from("question_bank").select("id,question,options,correct_option,explanation,subject,topic,difficulty,language,marks,tags,created_at");
     if (filters?.subject) query = query.eq("subject", filters.subject);
     if (filters?.topic) query = query.eq("topic", filters.topic);
     if (filters?.difficulty) query = query.eq("difficulty", filters.difficulty);
@@ -657,7 +657,7 @@ export const quizAttemptService = {
   async getAttemptsForQuiz(quizId: string): Promise<QuizAttempt[]> {
     const { data, error } = await supabase
       .from("quiz_attempts")
-      .select("*")
+      .select("id,quiz_id,user_id,answers,score,total_marks,percentage,started_at,completed_at")
       .eq("quiz_id", quizId)
       .order("started_at", { ascending: false });
     if (error) throw error;
@@ -667,7 +667,7 @@ export const quizAttemptService = {
   async getAttemptsForUser(userId: string): Promise<QuizAttempt[]> {
     const { data, error } = await supabase
       .from("quiz_attempts")
-      .select("*")
+      .select("id,quiz_id,user_id,answers,score,total_marks,percentage,started_at,completed_at")
       .eq("user_id", userId)
       .order("started_at", { ascending: false });
     if (error) throw error;
@@ -677,7 +677,7 @@ export const quizAttemptService = {
   async getAttempt(id: string): Promise<QuizAttempt | null> {
     const { data, error } = await supabase
       .from("quiz_attempts")
-      .select("*")
+      .select("id,quiz_id,user_id,answers,score,total_marks,percentage,started_at,completed_at")
       .eq("id", id)
       .single();
     if (error) return null;
@@ -743,7 +743,7 @@ export const attendanceService = {
   ): Promise<AttendanceRecord[]> {
     let query = supabase
       .from("attendance")
-      .select("*")
+      .select("id,user_id,course_id,date,status,marked_by,created_at")
       .eq("user_id", userId);
     if (courseId) query = query.eq("course_id", courseId);
     query = query.order("date", { ascending: false });
@@ -755,7 +755,7 @@ export const attendanceService = {
   async getAttendanceForCourse(courseId: string): Promise<AttendanceRecord[]> {
     const { data, error } = await supabase
       .from("attendance")
-      .select("*")
+      .select("id,user_id,course_id,date,status,marked_by,created_at")
       .eq("course_id", courseId)
       .order("date", { ascending: false });
     if (error) throw error;
@@ -809,7 +809,7 @@ export const resultService = {
   async getResults(userId: string): Promise<Result[]> {
     const { data, error } = await supabase
       .from("results")
-      .select("*")
+      .select("id,user_id,course_id,total_marks,obtained_marks,percentage,grade,created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -819,7 +819,7 @@ export const resultService = {
   async getResultsForCourse(courseId: string): Promise<Result[]> {
     const { data, error } = await supabase
       .from("results")
-      .select("*")
+      .select("id,user_id,course_id,total_marks,obtained_marks,percentage,grade,created_at")
       .eq("course_id", courseId)
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -849,7 +849,7 @@ export const certificateService = {
   async getCertificates(userId: string): Promise<Certificate[]> {
     const { data, error } = await supabase
       .from("certificates")
-      .select("*")
+      .select("id,user_id,course_id,certificate_number,issued_at,qr_code_url,verification_url")
       .eq("user_id", userId)
       .order("issued_at", { ascending: false });
     if (error) throw error;
@@ -861,7 +861,7 @@ export const certificateService = {
   ): Promise<Certificate | null> {
     const { data, error } = await supabase
       .from("certificates")
-      .select("*")
+      .select("id,user_id,course_id,certificate_number,issued_at,qr_code_url,verification_url")
       .eq("certificate_number", certificateNumber)
       .single();
     if (error) return null;
@@ -889,7 +889,7 @@ export const paymentService = {
   async getPayments(userId: string): Promise<Payment[]> {
     const { data, error } = await supabase
       .from("payments")
-      .select("*")
+      .select("id,user_id,course_id,amount,currency,status,receipt_url,paid_at,created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -899,7 +899,7 @@ export const paymentService = {
   async getPaymentsForCourse(courseId: string): Promise<Payment[]> {
     const { data, error } = await supabase
       .from("payments")
-      .select("*")
+      .select("id,user_id,course_id,amount,currency,status,receipt_url,paid_at,created_at")
       .eq("course_id", courseId)
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -945,7 +945,7 @@ export const notificationService = {
   async getNotifications(userId: string): Promise<Notification[]> {
     const { data, error } = await supabase
       .from("notifications")
-      .select("*")
+      .select("id,user_id,title,message,type,is_read,created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -1000,7 +1000,7 @@ export const blogService = {
   async getPosts(): Promise<BlogPost[]> {
     const { data, error } = await supabase
       .from("blog_posts")
-      .select("*")
+      .select("id,title,slug,excerpt,content,cover_image_url,author_id,category,tags,seo_title,seo_description,status,published_at,created_at,updated_at")
       .order("created_at", { ascending: false });
     if (error) throw error;
     return (data || []).map(mapRow<BlogPost>);
@@ -1009,7 +1009,7 @@ export const blogService = {
   async getPublishedPosts(): Promise<BlogPost[]> {
     const { data, error } = await supabase
       .from("blog_posts")
-      .select("*")
+      .select("id,title,slug,excerpt,content,cover_image_url,author_id,category,tags,seo_title,seo_description,status,published_at,created_at,updated_at")
       .eq("status", "PUBLISHED")
       .order("published_at", { ascending: false });
     if (error) throw error;
@@ -1019,7 +1019,7 @@ export const blogService = {
   async getPost(slug: string): Promise<BlogPost | null> {
     const { data, error } = await supabase
       .from("blog_posts")
-      .select("*")
+      .select("id,title,slug,excerpt,content,cover_image_url,author_id,category,tags,seo_title,seo_description,status,published_at,created_at,updated_at")
       .eq("slug", slug)
       .single();
     if (error) return null;
@@ -1168,7 +1168,7 @@ export const aiService = {
   async getConversations(userId: string): Promise<AIConversation[]> {
     const { data, error } = await supabase
       .from("ai_conversations")
-      .select("*")
+      .select("id,user_id,topic,level,created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
     if (error) throw error;
@@ -1178,7 +1178,7 @@ export const aiService = {
   async getMessages(conversationId: string): Promise<AIMessage[]> {
     const { data, error } = await supabase
       .from("ai_messages")
-      .select("*")
+      .select("id,conversation_id,role,content,created_at")
       .eq("conversation_id", conversationId)
       .order("created_at", { ascending: true });
     if (error) throw error;
@@ -1269,7 +1269,7 @@ export const profileService = {
   async getProfile(userId: string) {
     const { data, error } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id,email,full_name,role,phone,avatar_url,status,created_at,updated_at")
       .eq("id", userId)
       .single();
     if (error) return null;
@@ -1279,7 +1279,7 @@ export const profileService = {
   async getAllProfiles(): Promise<Array<Record<string, unknown>>> {
     const { data, error } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id,email,full_name,role,phone,avatar_url,status,created_at,updated_at")
       .order("created_at", { ascending: false });
     if (error) throw error;
     return (data || []) as Array<Record<string, unknown>>;
@@ -1288,7 +1288,7 @@ export const profileService = {
   async getProfilesByRole(role: string): Promise<Array<Record<string, unknown>>> {
     const { data, error } = await supabase
       .from("profiles")
-      .select("*")
+      .select("id,email,full_name,role,phone,avatar_url,status,created_at,updated_at")
       .eq("role", role)
       .order("created_at", { ascending: false });
     if (error) throw error;

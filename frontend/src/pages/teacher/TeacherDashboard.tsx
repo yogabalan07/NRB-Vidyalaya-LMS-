@@ -57,35 +57,51 @@ export function TeacherDashboardPage() {
         let pendingSubmissions = 0;
         let upcomingQuizzes = 0;
 
-        for (const course of currentCourses) {
-          const enrollments = await enrollmentService.getEnrollmentsForCourse(
-            course.id
-          );
+        const courseIds = currentCourses.map((c) => c.id);
+        const [enrollmentResults, assignmentResults, quizResults] =
+          await Promise.all([
+            Promise.all(
+              courseIds.map((id) => enrollmentService.getEnrollmentsForCourse(id))
+            ),
+            Promise.all(
+              courseIds.map((id) => assignmentService.getAssignments(id))
+            ),
+            Promise.all(
+              courseIds.map((id) => quizService.getQuizzes(id))
+            ),
+          ]);
+
+        for (const enrollments of enrollmentResults) {
           totalStudents += enrollments.length;
+        }
 
-          const assignments = await assignmentService.getAssignments(course.id);
-          for (const assignment of assignments) {
-            const submissions =
-              await submissionService.getSubmissionsForAssignment(assignment.id);
-            pendingSubmissions += submissions.filter(
-              (s) => s.status === "SUBMITTED"
-            ).length;
-          }
+        const allAssignments = assignmentResults.flat();
+        const allAssignmentIds = allAssignments.map((a) => a.id);
+        const submissionResults = await Promise.all(
+          allAssignmentIds.map((id) =>
+            submissionService.getSubmissionsForAssignment(id)
+          )
+        );
+        for (const submissions of submissionResults) {
+          pendingSubmissions += submissions.filter(
+            (s) => s.status === "SUBMITTED"
+          ).length;
+        }
 
-          const quizzes = await quizService.getQuizzes(course.id);
-          const now = new Date();
+        const now = new Date();
+        for (const quizzes of quizResults) {
           upcomingQuizzes += quizzes.filter(
             (q) => new Date(q.createdAt) > now || !q.isPublished
           ).length;
         }
 
         const recentActivities: ActivityItem[] = [];
-
-        for (const course of currentCourses.slice(0, 3)) {
-          const assignments = await assignmentService.getAssignments(course.id);
+        for (let i = 0; i < Math.min(currentCourses.length, 3); i++) {
+          const assignments = assignmentResults[i] || [];
           for (const assignment of assignments.slice(0, 2)) {
-            const submissions =
-              await submissionService.getSubmissionsForAssignment(assignment.id);
+            const submissions = await submissionService.getSubmissionsForAssignment(
+              assignment.id
+            );
             for (const sub of submissions.slice(0, 1)) {
               recentActivities.push({
                 id: sub.id,
@@ -148,7 +164,7 @@ export function TeacherDashboardPage() {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-64" />
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <Skeleton key={i} className="h-32" />
           ))}
@@ -160,7 +176,7 @@ export function TeacherDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Teacher Dashboard</h1>
           <p className="text-muted-foreground">
@@ -168,14 +184,14 @@ export function TeacherDashboardPage() {
           </p>
         </div>
         {unreadNotifications.length > 0 && (
-          <Badge variant="destructive" className="flex items-center gap-1">
+          <Badge variant="destructive" className="flex items-center gap-1 w-fit">
             <Bell className="h-3 w-3" />
             {unreadNotifications.length} new
           </Badge>
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -220,9 +236,9 @@ export function TeacherDashboardPage() {
                     key={activity.id}
                     className="flex items-start gap-3 rounded-lg border p-3"
                   >
-                    <CheckCircle className="mt-0.5 h-4 w-4 text-green-500" />
-                    <div>
-                      <p className="text-sm font-medium">{activity.title}</p>
+                    <CheckCircle className="mt-0.5 h-4 w-4 text-green-500 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{activity.title}</p>
                       <p className="text-xs text-muted-foreground">
                         {activity.description}
                       </p>
@@ -256,13 +272,13 @@ export function TeacherDashboardPage() {
                     key={course.id}
                     className="flex items-center justify-between rounded-lg border p-3"
                   >
-                    <div>
-                      <p className="text-sm font-medium">{course.title}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{course.title}</p>
                       <p className="text-xs text-muted-foreground">
                         {course.difficulty || "All levels"} · {course.language}
                       </p>
                     </div>
-                    <Badge variant={course.isPublished ? "default" : "secondary"}>
+                    <Badge variant={course.isPublished ? "default" : "secondary"} className="shrink-0 ml-2">
                       {course.isPublished ? "Published" : "Draft"}
                     </Badge>
                   </div>

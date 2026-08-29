@@ -36,6 +36,8 @@ export function useCourses() {
   return useQuery({
     queryKey: ["courses"],
     queryFn: courseService.getCourses,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -43,6 +45,8 @@ export function usePublishedCourses() {
   return useQuery({
     queryKey: ["courses", "published"],
     queryFn: courseService.getPublishedCourses,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -51,6 +55,8 @@ export function useCourse(slug: string) {
     queryKey: ["course", slug],
     queryFn: () => courseService.getCourse(slug),
     enabled: !!slug,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -59,6 +65,8 @@ export function useCourseById(id: string) {
     queryKey: ["course", id],
     queryFn: () => courseService.getCourseById(id),
     enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -67,6 +75,8 @@ export function useCoursesForTeacher(teacherId: string) {
     queryKey: ["courses", "teacher", teacherId],
     queryFn: () => courseService.getCoursesForTeacher(teacherId),
     enabled: !!teacherId,
+    staleTime: 3 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -470,11 +480,13 @@ export function useAllPayments() {
     queryFn: async () => {
       const { data, error } = await (await import("@/services/supabase")).supabase
         .from("payments")
-        .select("*")
+        .select("id,user_id,course_id,amount,currency,status,receipt_url,paid_at,created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data || [];
     },
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 }
 
@@ -484,6 +496,8 @@ export function useNotifications(userId: string) {
     queryKey: ["notifications", userId],
     queryFn: () => notificationService.getNotifications(userId),
     enabled: !!userId,
+    staleTime: 1 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 }
 
@@ -493,6 +507,8 @@ export function useUnreadNotificationCount(userId: string) {
     queryFn: () => notificationService.getUnreadCount(userId),
     enabled: !!userId,
     refetchInterval: 30000,
+    staleTime: 30 * 1000,
+    gcTime: 2 * 60 * 1000,
   });
 }
 
@@ -521,6 +537,8 @@ export function usePublishedBlogPosts() {
   return useQuery({
     queryKey: ["blog", "published"],
     queryFn: blogService.getPublishedPosts,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -528,6 +546,8 @@ export function useAllBlogPosts() {
   return useQuery({
     queryKey: ["blog", "all"],
     queryFn: blogService.getPosts,
+    staleTime: 3 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -536,6 +556,8 @@ export function useBlogPost(slug: string) {
     queryKey: ["blog", slug],
     queryFn: () => blogService.getPost(slug),
     enabled: !!slug,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 }
 
@@ -620,6 +642,8 @@ export function useDashboardStats() {
   return useQuery({
     queryKey: ["stats", "dashboard"],
     queryFn: statsService.getDashboardStats,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 }
 
@@ -628,6 +652,8 @@ export function useStudentStats(userId: string) {
     queryKey: ["stats", "student", userId],
     queryFn: () => statsService.getStudentStats(userId),
     enabled: !!userId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 }
 
@@ -636,6 +662,8 @@ export function useAllProfiles() {
   return useQuery({
     queryKey: ["profiles"],
     queryFn: profileService.getAllProfiles,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -644,6 +672,8 @@ export function useProfilesByRole(role: string) {
     queryKey: ["profiles", role],
     queryFn: () => profileService.getProfilesByRole(role),
     enabled: !!role,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
