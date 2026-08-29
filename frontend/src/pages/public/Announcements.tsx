@@ -13,12 +13,21 @@ function useAnnouncements() {
     queryFn: async (): Promise<Notification[]> => {
       const { data, error } = await supabase
         .from("notifications")
-        .select("*")
+        .select("id,user_id,title,message,type,is_read,created_at")
         .eq("type", "ANNOUNCEMENT")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []) as Notification[];
+      return (data || []).map((row: Record<string, unknown>) => ({
+        id: row.id as string,
+        userId: row.user_id as string,
+        title: row.title as string,
+        message: row.message as string,
+        type: row.type as string,
+        isRead: row.is_read as boolean,
+        createdAt: row.created_at as string,
+      })) as Notification[];
     },
+    staleTime: 10 * 60 * 1000,
   });
 }
 

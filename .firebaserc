@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "nrb-lms",
+    "production": "nrb-lms"
+  },
+  "targets": {},
+  "etags": {}
+}

@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   BookOpen,
@@ -13,6 +14,7 @@ import {
   Bell,
   User,
   LogOut,
+  Menu,
   ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { ROUTES } from "@/constants/routes";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { MobileDrawer } from "./MobileDrawer";
 
 const studentNav = [
   { label: "Dashboard", to: ROUTES.STUDENT_DASHBOARD, icon: LayoutDashboard },
@@ -125,19 +128,37 @@ function PortalSidebar({ title, navItems }: PortalSidebarProps) {
 }
 
 export function StudentLayout() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const handleClose = useCallback(() => setMobileOpen(false), []);
+
   return (
     <div className="flex min-h-screen">
       <PortalSidebar title="Student" navItems={studentNav} />
-      <div className="flex flex-1 flex-col">
-        <header className="flex h-16 items-center gap-4 border-b bg-card px-6">
-          <Button variant="ghost" size="icon" asChild className="lg:hidden">
+      <MobileDrawer
+        open={mobileOpen}
+        onClose={handleClose}
+        title="Student"
+        navItems={studentNav}
+      />
+      <div className="flex flex-1 flex-col min-w-0">
+        <header className="flex h-16 items-center gap-4 border-b bg-card px-4 sm:px-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden shrink-0"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open navigation"
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+          <Button variant="ghost" size="icon" asChild className="hidden lg:flex shrink-0">
             <Link to={ROUTES.HOME}>
               <ChevronLeft className="h-5 w-5" />
             </Link>
           </Button>
-          <h1 className="text-lg font-semibold">Student Portal</h1>
+          <h1 className="text-lg font-semibold truncate">Student Portal</h1>
         </header>
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           <Outlet />
         </main>
       </div>
