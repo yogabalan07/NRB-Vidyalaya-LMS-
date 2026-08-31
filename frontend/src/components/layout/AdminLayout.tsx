@@ -22,6 +22,7 @@ import {
   Menu,
   ChevronLeft,
   FileBarChart,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -43,6 +44,7 @@ const adminNav = [
   { label: "Quizzes", to: ROUTES.ADMIN_QUIZZES, icon: ListChecks },
   { label: "Question Bank", to: ROUTES.ADMIN_QUESTION_BANK, icon: Banknote },
   { label: "AI Generator", to: ROUTES.ADMIN_AI_GENERATOR, icon: Bot },
+  { label: "Quiz Importer", to: ROUTES.ADMIN_QUIZ_IMPORTER, icon: Upload },
   { label: "Attendance", to: ROUTES.ADMIN_ATTENDANCE, icon: CalendarCheck },
   { label: "Results", to: ROUTES.ADMIN_RESULTS, icon: BarChart3 },
   { label: "Certificates", to: ROUTES.ADMIN_CERTIFICATES, icon: Award },
@@ -64,6 +66,7 @@ const teacherNav = [
   { label: "Submissions", to: ROUTES.TEACHER_SUBMISSIONS, icon: FileText },
   { label: "Quizzes", to: ROUTES.TEACHER_QUIZZES, icon: ListChecks },
   { label: "Question Bank", to: ROUTES.TEACHER_QUESTION_BANK, icon: Banknote },
+  { label: "Quiz Importer", to: ROUTES.TEACHER_QUIZ_IMPORTER, icon: Upload },
   { label: "Attendance", to: ROUTES.TEACHER_ATTENDANCE, icon: CalendarCheck },
   { label: "Performance", to: ROUTES.TEACHER_PROGRESS, icon: BarChart3 },
   { label: "Announcements", to: ROUTES.TEACHER_ANNOUNCEMENTS, icon: MessageSquare },

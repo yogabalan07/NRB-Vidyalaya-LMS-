@@ -18,6 +18,7 @@ import type {
   AdminUser,
   CreateUserData,
   UpdateUserData,
+  StorageStats,
 } from "@/types/admin";
 
 function snakeToCamel(str: string): string {
@@ -1549,5 +1550,10 @@ export const adminService = {
     return adminFetch<{ status: string; data: { message: string } }>(`/admin/materials/${id}`, {
       method: "DELETE",
     });
+  },
+
+  // ─── Storage ──────────────────────────────────────────
+  async getStorageStats() {
+    return adminFetch<{ status: string; data: StorageStats }>("/admin/storage/stats");
   },
 };

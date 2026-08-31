@@ -77,3 +77,18 @@ export interface UpdateUserData {
   role?: string;
   status?: string;
 }
+
+export interface StorageBucketStats {
+  bucketName: string;
+  fileCount: number;
+  usedBytes: number;
+}
+
+export interface StorageStats {
+  totalBytes: number | null;
+  usedBytes: number;
+  remainingBytes: number | null;
+  usedPercentage: number | null;
+  quotaAvailable: boolean;
+  buckets: StorageBucketStats[];
+}

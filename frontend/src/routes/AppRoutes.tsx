@@ -59,6 +59,7 @@ const TeacherAssignmentsPage = lazy(() => import("@/pages/teacher/Assignments").
 const TeacherSubmissionsPage = lazy(() => import("@/pages/teacher/Submissions").then(m => ({ default: m.TeacherSubmissionsPage })));
 const TeacherQuizzesPage = lazy(() => import("@/pages/teacher/Quizzes").then(m => ({ default: m.TeacherQuizzesPage })));
 const TeacherQuestionBankPage = lazy(() => import("@/pages/teacher/QuestionBank").then(m => ({ default: m.TeacherQuestionBankPage })));
+const TeacherQuizImporterPage = lazy(() => import("@/pages/teacher/QuizImporter").then(m => ({ default: m.TeacherQuizImporterPage })));
 const TeacherAttendancePage = lazy(() => import("@/pages/teacher/Attendance").then(m => ({ default: m.TeacherAttendancePage })));
 const TeacherPerformancePage = lazy(() => import("@/pages/teacher/StudentPerformance").then(m => ({ default: m.TeacherPerformancePage })));
 const TeacherAnnouncementsPage = lazy(() => import("@/pages/teacher/Announcements").then(m => ({ default: m.TeacherAnnouncementsPage })));
@@ -76,6 +77,7 @@ const AdminAssignmentsPage = lazy(() => import("@/pages/admin/Assignments").then
 const AdminQuizzesPage = lazy(() => import("@/pages/admin/Quizzes").then(m => ({ default: m.AdminQuizzesPage })));
 const AdminQuestionBankPage = lazy(() => import("@/pages/admin/QuestionBank").then(m => ({ default: m.AdminQuestionBankPage })));
 const AdminAIGeneratorPage = lazy(() => import("@/pages/admin/AIQuestionGenerator").then(m => ({ default: m.AdminAIGeneratorPage })));
+const AdminQuizImporterPage = lazy(() => import("@/pages/admin/QuizImporter").then(m => ({ default: m.AdminQuizImporterPage })));
 const AdminAttendancePage = lazy(() => import("@/pages/admin/Attendance").then(m => ({ default: m.AdminAttendancePage })));
 const AdminResultsPage = lazy(() => import("@/pages/admin/Results").then(m => ({ default: m.AdminResultsPage })));
 const AdminCertificatesPage = lazy(() => import("@/pages/admin/Certificates").then(m => ({ default: m.AdminCertificatesPage })));
@@ -155,6 +157,7 @@ export function AppRoutes() {
           <Route path="submissions" element={<Suspense fallback={<LazyFallback />}><TeacherSubmissionsPage /></Suspense>} />
           <Route path="quizzes" element={<Suspense fallback={<LazyFallback />}><TeacherQuizzesPage /></Suspense>} />
           <Route path="question-bank" element={<Suspense fallback={<LazyFallback />}><TeacherQuestionBankPage /></Suspense>} />
+          <Route path="quiz-import" element={<Suspense fallback={<LazyFallback />}><TeacherQuizImporterPage /></Suspense>} />
           <Route path="attendance" element={<Suspense fallback={<LazyFallback />}><TeacherAttendancePage /></Suspense>} />
           <Route path="performance" element={<Suspense fallback={<LazyFallback />}><TeacherPerformancePage /></Suspense>} />
           <Route path="announcements" element={<Suspense fallback={<LazyFallback />}><TeacherAnnouncementsPage /></Suspense>} />
@@ -176,6 +179,7 @@ export function AppRoutes() {
           <Route path="quizzes" element={<Suspense fallback={<LazyFallback />}><AdminQuizzesPage /></Suspense>} />
           <Route path="question-bank" element={<Suspense fallback={<LazyFallback />}><AdminQuestionBankPage /></Suspense>} />
           <Route path="ai-generator" element={<Suspense fallback={<LazyFallback />}><AdminAIGeneratorPage /></Suspense>} />
+          <Route path="quiz-import" element={<Suspense fallback={<LazyFallback />}><AdminQuizImporterPage /></Suspense>} />
           <Route path="attendance" element={<Suspense fallback={<LazyFallback />}><AdminAttendancePage /></Suspense>} />
           <Route path="results" element={<Suspense fallback={<LazyFallback />}><AdminResultsPage /></Suspense>} />
           <Route path="certificates" element={<Suspense fallback={<LazyFallback />}><AdminCertificatesPage /></Suspense>} />

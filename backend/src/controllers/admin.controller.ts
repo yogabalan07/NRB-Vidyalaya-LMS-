@@ -195,6 +195,105 @@ export async function deleteUser(
   }
 }
 
+// ─── Storage Stats ─────────────────────────────────────────
+
+export async function getStorageStats(
+  _req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const supabase = getSupabaseClient();
+
+    const { data: buckets, error: bucketsError } =
+      await supabase.storage.listBuckets();
+
+    if (bucketsError) {
+      console.error("[admin] listBuckets error:", bucketsError.message);
+      sendError(res, "Failed to list storage buckets", 500);
+      return;
+    }
+
+    const bucketStats: Array<{
+      bucketName: string;
+      fileCount: number;
+      usedBytes: number;
+    }> = [];
+
+    let totalUsedBytes = 0;
+
+    for (const bucket of buckets || []) {
+      let fileCount = 0;
+      let bucketUsedBytes = 0;
+      let offset = 0;
+      const pageSize = 100;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data: files, error: filesError } = await supabase.storage
+          .from(bucket.name)
+          .list("", {
+            limit: pageSize,
+            offset,
+            sortBy: { column: "name", order: "asc" },
+          });
+
+        if (filesError) {
+          console.error(
+            `[admin] listFiles error for bucket ${bucket.name}:`,
+            filesError.message
+          );
+          break;
+        }
+
+        if (!files || files.length === 0) {
+          hasMore = false;
+          break;
+        }
+
+        for (const file of files) {
+          if (file.id) {
+            fileCount++;
+            bucketUsedBytes += file.metadata?.size ?? 0;
+          }
+        }
+
+        if (files.length < pageSize) {
+          hasMore = false;
+        } else {
+          offset += pageSize;
+        }
+      }
+
+      totalUsedBytes += bucketUsedBytes;
+      bucketStats.push({
+        bucketName: bucket.name,
+        fileCount,
+        usedBytes: bucketUsedBytes,
+      });
+    }
+
+    const defaultTotalQuota = 1024 * 1024 * 1024; // 1 GB free tier
+
+    sendSuccess(res, {
+      totalBytes: defaultTotalQuota,
+      usedBytes: totalUsedBytes,
+      remainingBytes: Math.max(0, defaultTotalQuota - totalUsedBytes),
+      usedPercentage: Math.min(
+        100,
+        Math.round((totalUsedBytes / defaultTotalQuota) * 100)
+      ),
+      quotaAvailable: false,
+      buckets: bucketStats,
+    });
+  } catch (err) {
+    console.error(
+      "[admin] getStorageStats error:",
+      err instanceof Error ? err.message : err
+    );
+    sendError(res, "Failed to get storage statistics", 500);
+  }
+}
+
 // ─── Materials ─────────────────────────────────────────────
 
 export async function listMaterials(

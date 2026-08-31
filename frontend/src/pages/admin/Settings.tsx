@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks";
+import { StorageUsage } from "@/components/admin/StorageUsage";
 import {
   Settings as SettingsIcon,
   Shield,
@@ -149,34 +150,7 @@ export function AdminSettingsPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Database className="h-5 w-5" />
-            Storage Buckets
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">avatars</span>
-              <Badge variant="outline">User profile images</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">study-materials</span>
-              <Badge variant="outline">Course files and documents</Badge>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm">blog-covers</span>
-              <Badge variant="outline">Blog post cover images</Badge>
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              Ensure these buckets exist in your Supabase project with
-              appropriate RLS policies.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <StorageUsage />
     </div>
   );
 }

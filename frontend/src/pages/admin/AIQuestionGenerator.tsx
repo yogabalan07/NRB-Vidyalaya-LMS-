@@ -1,123 +1,208 @@
-import { useState } from "react";
-import { useGenerateQuestions, useCreateQuestionBankQuestion } from "@/hooks";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Sparkles,
-  CheckCircle2,
-  Pencil,
-  Trash2,
-  Save,
-  Loader2,
+  Copy,
+  Download,
+  CheckCircle,
+  FileJson,
 } from "lucide-react";
 
-interface GeneratedQuestion {
-  question: string;
-  options: Array<{ id: string; text: string }>;
-  correctOption: string;
-  explanation: string;
-  marks: number;
-}
-
-interface GeneratorForm {
+interface PromptForm {
   subject: string;
   topic: string;
   classLevel: string;
   difficulty: string;
   language: string;
   numberOfQuestions: number;
-  marks: number;
+  marksPerQuestion: number;
   negativeMarks: number;
   questionType: string;
 }
 
-const defaultForm: GeneratorForm = {
+const defaultForm: PromptForm = {
   subject: "Hindi",
   topic: "Grammar",
   classLevel: "Beginner",
-  difficulty: "medium",
+  difficulty: "Medium",
   language: "Hindi",
   numberOfQuestions: 5,
-  marks: 1,
+  marksPerQuestion: 1,
   negativeMarks: 0,
   questionType: "MCQ",
 };
 
-export function AdminAIGeneratorPage() {
-  const generateQuestions = useGenerateQuestions();
-  const saveQuestion = useCreateQuestionBankQuestion();
+function buildQuizPrompt(form: PromptForm): string {
+  const questionTypeLabel =
+    form.questionType === "MCQ"
+      ? "multiple-choice"
+      : form.questionType === "TRUE_FALSE"
+        ? "true/false"
+        : form.questionType === "FILL_BLANK"
+          ? "fill-in-the-blank"
+          : form.questionType;
 
-  const [form, setForm] = useState<GeneratorForm>(defaultForm);
-  const [generated, setGenerated] = useState<GeneratedQuestion[]>([]);
-  const [editingIdx, setEditingIdx] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState<GeneratedQuestion | null>(null);
-  const [savedIds, setSavedIds] = useState<Set<number>>(new Set());
+  const optionsInstruction =
+    form.questionType === "MCQ"
+      ? `- Every question must have exactly 4 options.
+- Options must be A, B, C and D.
+- There must be exactly one correct answer.
+- The correct answer must be represented as A, B, C or D.`
+      : form.questionType === "TRUE_FALSE"
+        ? `- Every question must have exactly 2 options: "True" and "False".
+- Options must be A (True) and B (False).
+- The correct answer must be A or B.`
+        : `- Provide the correct answer as plain text.`;
+
+  const jsonStructure =
+    form.questionType === "MCQ"
+      ? `{
+  "title": "${form.subject} ${form.topic} Quiz",
+  "subject": "${form.subject}",
+  "topic": "${form.topic}",
+  "classLevel": "${form.classLevel}",
+  "difficulty": "${form.difficulty}",
+  "language": "${form.language}",
+  "marksPerQuestion": ${form.marksPerQuestion},
+  "negativeMarks": ${form.negativeMarks},
+  "questionType": "MCQ",
+  "questions": [
+    {
+      "question": "....",
+      "options": {
+        "A": "....",
+        "B": "....",
+        "C": "....",
+        "D": "...."
+      },
+      "correctAnswer": "A"
+    }
+  ]
+}`
+      : form.questionType === "TRUE_FALSE"
+        ? `{
+  "title": "${form.subject} ${form.topic} Quiz",
+  "subject": "${form.subject}",
+  "topic": "${form.topic}",
+  "classLevel": "${form.classLevel}",
+  "difficulty": "${form.difficulty}",
+  "language": "${form.language}",
+  "marksPerQuestion": ${form.marksPerQuestion},
+  "negativeMarks": ${form.negativeMarks},
+  "questionType": "TRUE_FALSE",
+  "questions": [
+    {
+      "question": "....",
+      "options": {
+        "A": "True",
+        "B": "False"
+      },
+      "correctAnswer": "A"
+    }
+  ]
+}`
+        : `{
+  "title": "${form.subject} ${form.topic} Quiz",
+  "subject": "${form.subject}",
+  "topic": "${form.topic}",
+  "classLevel": "${form.classLevel}",
+  "difficulty": "${form.difficulty}",
+  "language": "${form.language}",
+  "marksPerQuestion": ${form.marksPerQuestion},
+  "negativeMarks": ${form.negativeMarks},
+  "questionType": "FILL_BLANK",
+  "questions": [
+    {
+      "question": "....",
+      "options": {
+        "A": "....",
+        "B": "....",
+        "C": "....",
+        "D": "...."
+      },
+      "correctAnswer": "A"
+    }
+  ]
+}`;
+
+  return `You are an expert ${form.subject} teacher and educational question paper creator.
+
+Create exactly ${form.numberOfQuestions} ${questionTypeLabel} questions for:
+
+Subject: ${form.subject}
+Topic: ${form.topic}
+Class Level: ${form.classLevel}
+Difficulty: ${form.difficulty}
+Language: ${form.language}
+
+Marks per question: ${form.marksPerQuestion}
+Negative marks: ${form.negativeMarks}
+
+Requirements:
+- Create exactly ${form.numberOfQuestions} questions.
+${optionsInstruction}
+- Questions must be suitable for the specified class level.
+- Questions must be grammatically correct.
+- Avoid duplicate questions.
+- Do not include explanations outside the JSON.
+- Return ONLY valid JSON.
+- Do not use markdown code fences.
+- Do not include \`\`\`json.
+- Do not include any introductory or explanatory text.
+
+Return the JSON using EXACTLY this structure:
+
+${jsonStructure}
+
+The JSON must contain exactly ${form.numberOfQuestions} questions.`;
+}
+
+function downloadFile(content: string, filename: string) {
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+export function AdminAIGeneratorPage() {
+  const [form, setForm] = useState<PromptForm>(defaultForm);
+  const [generatedPrompt, setGeneratedPrompt] = useState("");
+  const [copied, setCopied] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleGenerate = () => {
-    generateQuestions.mutate(form, {
-      onSuccess: (data) => {
-        setGenerated(data.questions);
-        setSavedIds(new Set());
-      },
-    });
+    const prompt = buildQuizPrompt(form);
+    setGeneratedPrompt(prompt);
+    setCopied(false);
   };
 
-  const handleEdit = (idx: number) => {
-    const q = generated[idx];
-    if (!q) return;
-    setEditingIdx(idx);
-    setEditForm({
-      question: q.question,
-      options: [...q.options.map((o) => ({ ...o }))],
-      correctOption: q.correctOption,
-      explanation: q.explanation,
-      marks: q.marks,
-    });
-  };
-
-  const handleSaveEdit = () => {
-    if (editingIdx === null || !editForm) return;
-    setGenerated((prev) =>
-      prev.map((q, i) => (i === editingIdx ? editForm : q))
-    );
-    setEditingIdx(null);
-    setEditForm(null);
-  };
-
-  const handleRemove = (idx: number) => {
-    setGenerated((prev) => prev.filter((_, i) => i !== idx));
-  };
-
-  const handleSaveToBank = (q: GeneratedQuestion, idx: number) => {
-    saveQuestion.mutate(
-      {
-        question: q.question,
-        options: q.options,
-        correct_option: q.correctOption,
-        explanation: q.explanation,
-        subject: form.subject || undefined,
-        topic: form.topic || undefined,
-        difficulty: form.difficulty || undefined,
-        language: form.language || undefined,
-        marks: q.marks || undefined,
-      },
-      {
-        onSuccess: () => {
-          setSavedIds((prev) => new Set(prev).add(idx));
-        },
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(generatedPrompt);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      if (textareaRef.current) {
+        textareaRef.current.select();
+        document.execCommand("copy");
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
       }
-    );
+    }
   };
 
-  const handleSaveAll = () => {
-    generated.forEach((q, idx) => {
-      if (!savedIds.has(idx)) {
-        handleSaveToBank(q, idx);
-      }
-    });
+  const handleDownload = () => {
+    const filename = `quiz-prompt-${form.subject.toLowerCase()}-${form.topic.toLowerCase().replace(/\s+/g, "-")}.txt`;
+    downloadFile(generatedPrompt, filename);
   };
 
   return (
@@ -125,14 +210,15 @@ export function AdminAIGeneratorPage() {
       <div>
         <h1 className="text-2xl font-bold">AI Question Generator</h1>
         <p className="text-muted-foreground">
-          Generate quiz questions using AI and save them to the question bank
+          Generate a prompt for ChatGPT or any AI tool, then import the
+          resulting JSON.
         </p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
+            <Sparkles className="h-5 w-5 text-yellow-500" />
             Generation Settings
           </CardTitle>
         </CardHeader>
@@ -181,9 +267,9 @@ export function AdminAIGeneratorPage() {
                   setForm((f) => ({ ...f, difficulty: e.target.value }))
                 }
               >
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
               </select>
             </div>
             <div className="space-y-2">
@@ -204,21 +290,25 @@ export function AdminAIGeneratorPage() {
                 onChange={(e) =>
                   setForm((f) => ({
                     ...f,
-                    numberOfQuestions: Number(e.target.value),
+                    numberOfQuestions: Number(e.target.value) || 5,
                   }))
                 }
                 min={1}
-                max={20}
+                max={50}
               />
             </div>
             <div className="space-y-2">
               <Label>Marks per Question</Label>
               <Input
                 type="number"
-                value={form.marks}
+                value={form.marksPerQuestion}
                 onChange={(e) =>
-                  setForm((f) => ({ ...f, marks: Number(e.target.value) }))
+                  setForm((f) => ({
+                    ...f,
+                    marksPerQuestion: Number(e.target.value) || 1,
+                  }))
                 }
+                min={1}
               />
             </div>
             <div className="space-y-2">
@@ -229,9 +319,10 @@ export function AdminAIGeneratorPage() {
                 onChange={(e) =>
                   setForm((f) => ({
                     ...f,
-                    negativeMarks: Number(e.target.value),
+                    negativeMarks: Number(e.target.value) || 0,
                   }))
                 }
+                min={0}
               />
             </div>
             <div className="space-y-2">
@@ -243,183 +334,79 @@ export function AdminAIGeneratorPage() {
                   setForm((f) => ({ ...f, questionType: e.target.value }))
                 }
               >
-                <option value="MCQ">MCQ</option>
-                <option value="TRUE_FALSE">True/False</option>
+                <option value="MCQ">MCQ (Multiple Choice)</option>
+                <option value="TRUE_FALSE">True / False</option>
                 <option value="FILL_BLANK">Fill in the Blank</option>
               </select>
             </div>
           </div>
           <div className="flex justify-end mt-4">
-            <Button
-              onClick={handleGenerate}
-              disabled={generateQuestions.isPending}
-            >
-              {generateQuestions.isPending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Sparkles className="h-4 w-4 mr-2" />
-              )}
-              {generateQuestions.isPending
-                ? "Generating..."
-                : "Generate Questions"}
+            <Button onClick={handleGenerate}>
+              <Sparkles className="h-4 w-4 mr-2" />
+              Generate Prompt
             </Button>
           </div>
-          {generateQuestions.isError && (
-            <p className="text-sm text-destructive mt-2">
-              {generateQuestions.error instanceof Error
-                ? generateQuestions.error.message
-                : "Failed to generate questions"}
-            </p>
-          )}
         </CardContent>
       </Card>
 
-      {generated.length > 0 && (
+      {generatedPrompt && (
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>
-              Generated Questions ({generated.length})
-            </CardTitle>
-            <Button onClick={handleSaveAll} variant="saffron">
-              <Save className="h-4 w-4 mr-2" />
-              Save All to Bank
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {generated.map((q, idx) => (
-                <div key={idx} className="rounded-lg border p-4">
-                  {editingIdx === idx && editForm ? (
-                    <div className="space-y-3">
-                      <textarea
-                        className="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                        value={editForm.question}
-                        onChange={(e) =>
-                          setEditForm((f) =>
-                            f ? { ...f, question: e.target.value } : null
-                          )
-                        }
-                      />
-                      <div className="grid gap-2">
-                        {editForm.options.map((opt, optIdx) => (
-                          <div key={opt.id} className="flex items-center gap-2">
-                            <input
-                              type="radio"
-                              name={`edit-correct-${idx}`}
-                              checked={editForm.correctOption === opt.id}
-                              onChange={() =>
-                                setEditForm((f) =>
-                                  f ? { ...f, correctOption: opt.id } : null
-                                )
-                              }
-                            />
-                            <Input
-                              value={opt.text}
-                              onChange={(e) => {
-                                const newOpts = editForm.options.map((o, i) =>
-                                  i === optIdx ? { ...o, text: e.target.value } : o
-                                );
-                                setEditForm((f) =>
-                                  f ? { ...f, options: newOpts } : null
-                                );
-                              }}
-                              placeholder={`Option ${opt.id.toUpperCase()}`}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                      <Input
-                        value={editForm.explanation}
-                        onChange={(e) =>
-                          setEditForm((f) =>
-                            f ? { ...f, explanation: e.target.value } : null
-                          )
-                        }
-                        placeholder="Explanation"
-                      />
-                      <div className="flex gap-2 justify-end">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setEditingIdx(null);
-                            setEditForm(null);
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button size="sm" onClick={handleSaveEdit}>
-                          Save
-                        </Button>
-                      </div>
-                    </div>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FileJson className="h-5 w-5" />
+                Generated Prompt
+              </CardTitle>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleCopy}>
+                  {copied ? (
+                    <>
+                      <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                      Copied!
+                    </>
                   ) : (
                     <>
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium">
-                            {idx + 1}. {q.question}
-                          </p>
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {q.options.map((opt) => (
-                              <Badge
-                                key={opt.id}
-                                variant={
-                                  opt.id === q.correctOption
-                                    ? "default"
-                                    : "outline"
-                                }
-                                className="text-xs"
-                              >
-                                {opt.id.toUpperCase()}: {opt.text}
-                              </Badge>
-                            ))}
-                          </div>
-                          {q.explanation && (
-                            <p className="text-xs text-muted-foreground mt-2">
-                              {q.explanation}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          {savedIds.has(idx) ? (
-                            <Badge variant="default">
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              Saved
-                            </Badge>
-                          ) : (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleEdit(idx)}
-                              >
-                                <Pencil className="h-3 w-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleRemove(idx)}
-                              >
-                                <Trash2 className="h-3 w-3 text-destructive" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleSaveToBank(q, idx)}
-                                disabled={saveQuestion.isPending}
-                              >
-                                <Save className="h-3 w-3 mr-1" />
-                                Save
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </div>
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy Prompt
                     </>
                   )}
-                </div>
-              ))}
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleDownload}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Textarea
+              ref={textareaRef}
+              readOnly
+              value={generatedPrompt}
+              className="min-h-[400px] font-mono text-xs leading-relaxed"
+              onClick={(e: React.MouseEvent<HTMLTextAreaElement>) => (e.target as HTMLTextAreaElement).select()}
+            />
+            <p className="mt-3 text-sm text-muted-foreground">
+              Copy this prompt and paste it into ChatGPT, Claude, Gemini, or
+              any AI tool. Then copy the AI's JSON response and import it
+              using the{" "}
+              <strong>JSON Importer</strong> on the Quizzes page.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {!generatedPrompt && (
+        <Card>
+          <CardContent className="py-12">
+            <div className="flex flex-col items-center text-center">
+              <Sparkles className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold">Ready to Generate</h3>
+              <p className="text-sm text-muted-foreground mt-1 max-w-md">
+                Fill in the form above and click "Generate Prompt" to create a
+                structured prompt for ChatGPT or any AI tool. The AI will
+                generate quiz JSON that you can import back into the LMS.
+              </p>
             </div>
           </CardContent>
         </Card>

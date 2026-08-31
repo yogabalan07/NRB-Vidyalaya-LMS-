@@ -19,6 +19,7 @@ import {
   createMaterial,
   updateMaterial,
   deleteMaterial,
+  getStorageStats,
 } from "../controllers/admin.controller.js";
 
 const router: ExpressRouter = Router();
@@ -40,5 +41,8 @@ router.get("/materials/:id", getMaterial);
 router.post("/materials", validate(createMaterialSchema), createMaterial);
 router.put("/materials/:id", validate(updateMaterialSchema), updateMaterial);
 router.delete("/materials/:id", deleteMaterial);
+
+// ─── Storage Stats ──────────────────────────────────────
+router.get("/storage/stats", getStorageStats);
 
 export default router;
