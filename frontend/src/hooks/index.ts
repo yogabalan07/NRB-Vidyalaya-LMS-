@@ -20,6 +20,7 @@ import {
   profileService,
   statsService,
   adminService,
+  progressService,
 } from "@/services";
 
 export function useAuth() {
@@ -780,5 +781,42 @@ export function useDeleteAdminMaterial() {
   return useMutation({
     mutationFn: adminService.deleteMaterial,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin", "materials"] }),
+  });
+}
+
+// ─── Progress Hooks ──────────────────────────────────────────
+export function useLessonProgress(lessonId: string) {
+  return useQuery({
+    queryKey: ["lesson", lessonId, "progress"],
+    queryFn: () => progressService.getLessonProgress(lessonId),
+    enabled: !!lessonId,
+  });
+}
+
+export function useCourseProgress(courseId: string) {
+  return useQuery({
+    queryKey: ["course", courseId, "progress"],
+    queryFn: () => progressService.getCourseProgress(courseId),
+    enabled: !!courseId,
+  });
+}
+
+export function useProgressOverview() {
+  return useQuery({
+    queryKey: ["progress", "overview"],
+    queryFn: progressService.getProgressOverview,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+}
+
+export function useMarkLessonComplete() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: progressService.markLessonComplete,
+    onSuccess: (_data, lessonId) => {
+      queryClient.invalidateQueries({ queryKey: ["lesson", lessonId, "progress"] });
+      queryClient.invalidateQueries({ queryKey: ["progress", "overview"] });
+    },
   });
 }

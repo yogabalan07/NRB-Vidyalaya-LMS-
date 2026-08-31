@@ -5,9 +5,11 @@ import {
   Clock,
   ExternalLink,
   ChevronRight,
+  CheckCircle,
+  Circle,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useEnrollments } from "@/hooks";
+import { useEnrollments, useLessonProgress, useMarkLessonComplete } from "@/hooks";
 import { courseService } from "@/services";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +23,45 @@ import type { Lesson } from "@/types/lesson";
 interface LessonWithCourse extends Lesson {
   courseName: string;
   courseId: string;
+}
+
+function LessonProgressButton({ lessonId }: { lessonId: string }) {
+  const { data: progress, isLoading } = useLessonProgress(lessonId);
+  const markComplete = useMarkLessonComplete();
+
+  if (isLoading) {
+    return <Skeleton className="h-6 w-6 rounded-full" />;
+  }
+
+  const isCompleted = progress?.data?.completed || false;
+
+  return (
+    <Button
+      variant={isCompleted ? "default" : "outline"}
+      size="sm"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!isCompleted) {
+          markComplete.mutate(lessonId);
+        }
+      }}
+      disabled={isCompleted || markComplete.isPending}
+      className="flex items-center gap-1"
+    >
+      {isCompleted ? (
+        <>
+          <CheckCircle className="h-4 w-4" />
+          <span className="text-xs">Completed</span>
+        </>
+      ) : (
+        <>
+          <Circle className="h-4 w-4" />
+          <span className="text-xs">Mark Complete</span>
+        </>
+      )}
+    </Button>
+  );
 }
 
 function LessonsSkeleton() {
@@ -152,11 +193,14 @@ export function StudentLessonsPage() {
                           </div>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link to={`${ROUTES.STUDENT_COURSES}/${courseId}`}>
-                          <ExternalLink className="h-4 w-4" />
-                        </Link>
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <LessonProgressButton lessonId={lesson.id} />
+                        <Button variant="ghost" size="sm" asChild>
+                          <Link to={`${ROUTES.STUDENT_COURSES}/${courseId}`}>
+                            <ExternalLink className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>

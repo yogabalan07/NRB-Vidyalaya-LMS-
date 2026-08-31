@@ -4,6 +4,11 @@ import {
   correctWritingSchema,
   generateQuestionsSchema,
 } from "../validators/ai.validators.js";
+import {
+  markLessonCompleteSchema,
+  getLessonProgressSchema,
+  getCourseProgressSchema,
+} from "../validators/progress.validators.js";
 import { sendSuccess, sendError, sendPaginated } from "../utils/response.js";
 import { calculatePagination } from "../utils/pagination.js";
 import {
@@ -433,5 +438,55 @@ describe("Backend - API Health", () => {
     expect(healthResponse.status).toBe("ok");
     expect(healthResponse.service).toBe("NRB Vidyalaya LMS API");
     expect(healthResponse.timestamp).toBeDefined();
+  });
+});
+
+describe("Progress Validators", () => {
+  const validUUID = "550e8400-e29b-41d4-a716-446655440000";
+
+  describe("markLessonCompleteSchema", () => {
+    it("accepts valid lesson ID", () => {
+      const result = markLessonCompleteSchema.safeParse({ lessonId: validUUID });
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects invalid lesson ID", () => {
+      const result = markLessonCompleteSchema.safeParse({ lessonId: "not-a-uuid" });
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects missing lesson ID", () => {
+      const result = markLessonCompleteSchema.safeParse({});
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("getLessonProgressSchema", () => {
+    it("accepts valid lesson ID", () => {
+      const result = getLessonProgressSchema.safeParse({ lessonId: validUUID });
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects invalid lesson ID", () => {
+      const result = getLessonProgressSchema.safeParse({ lessonId: "invalid" });
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("getCourseProgressSchema", () => {
+    it("accepts valid course ID", () => {
+      const result = getCourseProgressSchema.safeParse({ courseId: validUUID });
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects invalid course ID", () => {
+      const result = getCourseProgressSchema.safeParse({ courseId: "not-a-uuid" });
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects missing course ID", () => {
+      const result = getCourseProgressSchema.safeParse({});
+      expect(result.success).toBe(false);
+    });
   });
 });

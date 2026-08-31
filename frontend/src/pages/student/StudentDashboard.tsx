@@ -10,7 +10,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useStudentStats, useEnrollments } from "@/hooks";
+import { useStudentStats, useEnrollments, useProgressOverview } from "@/hooks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -83,12 +83,16 @@ export function StudentDashboardPage() {
   const { data: enrollments, isLoading: enrollmentsLoading } = useEnrollments(
     user?.id || ""
   );
+  const { data: progressOverview, isLoading: progressLoading } = useProgressOverview();
 
-  if (statsLoading || enrollmentsLoading) {
+  if (statsLoading || enrollmentsLoading || progressLoading) {
     return <DashboardSkeleton />;
   }
 
   const recentEnrollments = (enrollments || []).slice(0, 5);
+  const progressMap = new Map(
+    (progressOverview?.data || []).map((p) => [p.courseId, p])
+  );
 
   return (
     <div className="space-y-6">
@@ -158,30 +162,37 @@ export function StudentDashboardPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {recentEnrollments.map((enrollment) => (
-                  <div
-                    key={enrollment.id}
-                    className="flex items-center justify-between rounded-lg border p-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-md bg-primary/10 p-2">
-                        <BookOpen className="h-4 w-4 text-primary" />
+                {recentEnrollments.map((enrollment) => {
+                  const progress = progressMap.get(enrollment.courseId);
+                  const progressPercent = progress?.progressPercent || enrollment.progressPercent || 0;
+                  const completedLessons = progress?.completedLessons || 0;
+                  const totalLessons = progress?.totalLessons || 0;
+                  
+                  return (
+                    <div
+                      key={enrollment.id}
+                      className="flex items-center justify-between rounded-lg border p-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-md bg-primary/10 p-2">
+                          <BookOpen className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Course</p>
+                          <p className="text-xs text-muted-foreground">
+                            {completedLessons}/{totalLessons} lessons • {progressPercent}% complete
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium">Course</p>
-                        <p className="text-xs text-muted-foreground">
-                          {enrollment.progressPercent}% complete
-                        </p>
+                      <div className="h-2 w-24 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-primary animate-progress-fill transition-all"
+                          style={{ width: `${progressPercent}%` }}
+                        />
                       </div>
                     </div>
-                    <div className="h-2 w-24 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-primary animate-progress-fill transition-all"
-                        style={{ width: `${enrollment.progressPercent}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>

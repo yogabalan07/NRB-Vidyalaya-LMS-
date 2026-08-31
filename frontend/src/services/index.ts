@@ -1557,3 +1557,67 @@ export const adminService = {
     return adminFetch<{ status: string; data: StorageStats }>("/admin/storage/stats");
   },
 };
+
+// ─── Progress Service ─────────────────────────────────────────
+export const progressService = {
+  async markLessonComplete(lessonId: string) {
+    return adminFetch<{
+      status: string;
+      data: {
+        lessonId: string;
+        completed: boolean;
+        courseProgress: {
+          total_lessons: number;
+          completed_lessons: number;
+          progress_percent: number;
+        };
+      };
+    }>(`/progress/lesson/${lessonId}/complete`, { method: "POST" });
+  },
+
+  async getLessonProgress(lessonId: string) {
+    return adminFetch<{
+      status: string;
+      data: {
+        lessonId: string;
+        completed: boolean;
+        completedAt: string | null;
+      };
+    }>(`/progress/lesson/${lessonId}`);
+  },
+
+  async getCourseProgress(courseId: string) {
+    return adminFetch<{
+      status: string;
+      data: {
+        courseId: string;
+        totalLessons: number;
+        completedLessons: number;
+        progressPercent: number;
+        lessons: Array<{
+          id: string;
+          title: string;
+          sort_order: number;
+          completed: boolean;
+          completedAt: string | null;
+        }>;
+      };
+    }>(`/progress/course/${courseId}`);
+  },
+
+  async getProgressOverview() {
+    return adminFetch<{
+      status: string;
+      data: Array<{
+        courseId: string;
+        title: string;
+        slug: string;
+        thumbnailUrl: string;
+        enrolledAt: string;
+        totalLessons: number;
+        completedLessons: number;
+        progressPercent: number;
+      }>;
+    }>("/progress/overview");
+  },
+};

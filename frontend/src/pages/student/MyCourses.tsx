@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { BookOpen, Clock, BarChart3 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useEnrollments } from "@/hooks";
+import { useEnrollments, useProgressOverview } from "@/hooks";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,7 @@ export function StudentCoursesPage() {
   const { data: enrollments, isLoading: enrollmentsLoading } = useEnrollments(
     user?.id || ""
   );
+  const { data: progressOverview, isLoading: progressLoading } = useProgressOverview();
 
   const courseIds = useMemo(
     () => (enrollments || []).map((e) => e.courseId),
@@ -38,7 +39,12 @@ export function StudentCoursesPage() {
     enabled: courseIds.length > 0,
   });
 
-  const isLoading = enrollmentsLoading || coursesLoading;
+  const isLoading = enrollmentsLoading || coursesLoading || progressLoading;
+
+  const progressMap = useMemo(
+    () => new Map((progressOverview?.data || []).map((p) => [p.courseId, p])),
+    [progressOverview]
+  );
 
   if (isLoading) {
     return (
@@ -76,6 +82,11 @@ export function StudentCoursesPage() {
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {enrollments.map((enrollment) => {
             const course = coursesData?.get(enrollment.courseId);
+            const progress = progressMap.get(enrollment.courseId);
+            const progressPercent = progress?.progressPercent || enrollment.progressPercent || 0;
+            const completedLessons = progress?.completedLessons || 0;
+            const totalLessons = progress?.totalLessons || 0;
+            
             return (
               <Link
                 key={enrollment.id}
@@ -116,14 +127,14 @@ export function StudentCoursesPage() {
                             Progress
                           </span>
                           <span className="font-medium">
-                            {enrollment.progressPercent}%
+                            {completedLessons}/{totalLessons} lessons • {progressPercent}%
                           </span>
                         </div>
                         <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                           <div
                             className="h-full rounded-full bg-primary transition-all"
                             style={{
-                              width: `${enrollment.progressPercent}%`,
+                              width: `${progressPercent}%`,
                             }}
                           />
                         </div>
@@ -138,7 +149,7 @@ export function StudentCoursesPage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <BarChart3 className="h-3 w-3" />
-                          {enrollment.progressPercent}%
+                          {progressPercent}%
                         </div>
                       </div>
                     </div>
