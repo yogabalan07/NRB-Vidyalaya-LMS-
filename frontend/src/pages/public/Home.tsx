@@ -57,10 +57,10 @@ export function HomePage() {
               <FadeIn delay={600}>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <Button size="lg" variant="saffron" asChild>
-                    <Link to="/login">Start Learning<ArrowRight className="ml-2 h-5 w-5" /></Link>
+                    <Link to="/register">Start Learning<ArrowRight className="ml-2 h-5 w-5" /></Link>
                   </Button>
                   <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10" asChild>
-                    <Link to="/courses">Explore Courses</Link>
+                    <Link to="/login">Login</Link>
                   </Button>
                 </div>
               </FadeIn>
